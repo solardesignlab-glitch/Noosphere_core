@@ -1,0 +1,76 @@
+services:
+  espocrm:
+    image: espocrm/espocrm:latest
+    container_name: ucp_espocrm
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      ESPOCRM_DATABASE_HOST: database
+      ESPOCRM_DATABASE_NAME: ${DB_NAME}
+      ESPOCRM_DATABASE_USER: ${DB_USER}
+      ESPOCRM_DATABASE_PASSWORD: ${DB_PASSWORD}
+      ESPOCRM_ADMIN_USERNAME: ${ESPO_ADMIN_USERNAME}
+      ESPOCRM_ADMIN_PASSWORD: ${ESPO_ADMIN_PASSWORD}
+      ESPOCRM_SITE_URL: ${SITE_URL}
+    volumes:
+      - espocrm_data:/var/www/html/data
+    ports:
+      - "8081:80"
+    healthcheck:
+      test: ["CMD", "bin/command", "app-check"]
+      start_period: 20s
+      interval: 60s
+      timeout: 20s
+      retries: 3
+
+  database:
+    image: mariadb:11
+    container_name: ucp_database
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - database_data:/var/lib/mysql
+    healthcheck:
+      # Оставляем существующий healthcheck, так как он специфичен для MariaDB
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 20s
+      start_period: 10s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: ucp_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
+  telegram:
+    build:
+      context: ./services/telegram
+    container_name: ucp_telegram
+    restart: unless-stopped
+    depends_on:
+      - espocrm
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      ESPOCRM_URL: ${ESPOCRM_URL}
+      ESPOCRM_API_USERNAME: ${ESPOCRM_API_USERNAME}
+      ESPOCRM_API_PASSWORD: ${ESPOCRM_API_PASSWORD}
+      ADMIN_TELEGRAM_ID: ${ADMIN_TELEGRAM_ID}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+    ports:
+      - "8090:8000"
+
+volumes:
+  espocrm_data:
+  database_data:
+  redis_data:
+  espocrm_custom_client:

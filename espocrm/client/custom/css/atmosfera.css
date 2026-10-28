@@ -1,0 +1,441 @@
+/* ==========================================================
+   Атмосфера — custom theme for EspoCRM
+   Современный светлый интерфейс с сине-фиолетовым акцентом
+   ========================================================== */
+
+:root {
+  --atm-bg: #F7F8FA;
+  --atm-surface: #FFFFFF;
+  --atm-text: #101828;
+  --atm-muted: #667085;
+  --atm-border: #EAECF0;
+
+  --atm-primary: #5B5BD6;
+  --atm-primary-dark: #3F3FB8;
+  --atm-primary-soft: #EEEDFB;
+
+  --atm-accent: #FFB86B;
+  --atm-accent-soft: #FFF3E4;
+
+  --atm-success: #12B76A;
+  --atm-success-soft: #E7F8F0;
+
+  --atm-warning: #F79009;
+  --atm-warning-soft: #FFF4E0;
+
+  --atm-danger: #F04438;
+  --atm-danger-soft: #FDECEA;
+
+  --atm-radius: 14px;
+  --atm-radius-lg: 18px;
+  --atm-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+  --atm-shadow-hover: 0 12px 32px rgba(16, 24, 40, 0.08);
+}
+
+/* ==========================================================
+   Base
+   ========================================================== */
+
+body {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(91, 91, 214, 0.08), transparent 40%),
+    radial-gradient(circle at 90% 100%, rgba(255, 184, 107, 0.10), transparent 45%),
+    var(--atm-bg);
+  color: var(--atm-text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a,
+.link {
+  color: var(--atm-primary);
+}
+
+a:hover,
+.link:hover {
+  color: var(--atm-primary-dark);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--atm-text);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================
+   Header
+   ========================================================== */
+
+.navbar {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid var(--atm-border);
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+.navbar .navbar-brand,
+.navbar .app-name {
+  color: var(--atm-text);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.navbar .navbar-nav > li > a,
+.navbar .dropdown-toggle {
+  color: var(--atm-muted);
+}
+
+.navbar .navbar-nav > li > a:hover,
+.navbar .dropdown-toggle:hover {
+  color: var(--atm-text);
+  background-color: var(--atm-primary-soft);
+}
+
+/* ==========================================================
+   Side navigation
+   ========================================================== */
+
+.navbar-side,
+.side-menu,
+#nav-menu {
+  background: rgba(255, 255, 255, 0.92);
+  border-right: 1px solid var(--atm-border);
+  backdrop-filter: blur(10px);
+}
+
+.navbar-side .nav > li > a,
+#nav-menu .nav > li > a {
+  color: var(--atm-muted);
+  font-weight: 600;
+  border-radius: 12px;
+  margin: 2px 8px;
+  padding: 10px 14px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.navbar-side .nav > li > a:hover,
+#nav-menu .nav > li > a:hover {
+  background-color: var(--atm-primary-soft);
+  color: var(--atm-primary-dark);
+}
+
+.navbar-side .nav > li.active > a,
+#nav-menu .nav > li.active > a,
+.navbar-side .nav > li.selected > a,
+#nav-menu .nav > li.selected > a {
+  background: linear-gradient(135deg, #5B5BD6, #3F3FB8);
+  color: #FFFFFF;
+  box-shadow: 0 8px 20px rgba(91, 91, 214, 0.28);
+}
+
+.navbar-side .nav > li.active > a:hover,
+#nav-menu .nav > li.active > a:hover {
+  background: linear-gradient(135deg, #4B4BC7, #3535A8);
+  color: #FFFFFF;
+}
+
+/* ==========================================================
+   Panels and cards
+   ========================================================== */
+
+.panel,
+.panel-default,
+.record-panel,
+.dashboard-card,
+.list-group-item {
+  background-color: var(--atm-surface);
+  border: 1px solid rgba(234, 236, 240, 0.9);
+  border-radius: var(--atm-radius-lg);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 12px 32px rgba(16, 24, 40, 0.06);
+}
+
+.panel-heading,
+.panel-default > .panel-heading {
+  background-color: transparent;
+  border-bottom: 1px solid var(--atm-border);
+  color: var(--atm-text);
+  font-weight: 600;
+}
+
+.panel-body {
+  padding: 18px;
+}
+
+.panel:hover {
+  box-shadow: var(--atm-shadow-hover);
+}
+
+/* ==========================================================
+   Buttons
+   ========================================================== */
+
+.btn {
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.btn-primary,
+.btn.btn-primary {
+  background: linear-gradient(135deg, #5B5BD6, #3F3FB8);
+  border: none;
+  color: #FFFFFF;
+  box-shadow: 0 6px 16px rgba(91, 91, 214, 0.25);
+}
+
+.btn-primary:hover,
+.btn.btn-primary:hover,
+.btn-primary:focus,
+.btn.btn-primary:focus {
+  background: linear-gradient(135deg, #4B4BC7, #3535A8);
+  border: none;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(91, 91, 214, 0.32);
+}
+
+.btn-default,
+.btn.btn-default {
+  background-color: var(--atm-surface);
+  border-color: var(--atm-border);
+  color: var(--atm-text);
+}
+
+.btn-default:hover,
+.btn.btn-default:hover {
+  background-color: var(--atm-primary-soft);
+  border-color: var(--atm-primary-soft);
+  color: var(--atm-primary-dark);
+}
+
+.btn-danger,
+.btn.btn-danger {
+  background-color: var(--atm-danger);
+  border-color: var(--atm-danger);
+  color: #FFFFFF;
+}
+
+.btn-success,
+.btn.btn-success {
+  background-color: var(--atm-success);
+  border-color: var(--atm-success);
+  color: #FFFFFF;
+}
+
+/* ==========================================================
+   Forms
+   ========================================================== */
+
+.form-control,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select,
+textarea {
+  background-color: var(--atm-surface);
+  border: 1px solid var(--atm-border);
+  border-radius: 12px;
+  color: var(--atm-text);
+  box-shadow: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--atm-primary);
+  box-shadow: 0 0 0 3px rgba(91, 91, 214, 0.15);
+  outline: none;
+}
+
+label,
+.control-label {
+  color: var(--atm-muted);
+  font-weight: 600;
+}
+
+/* ==========================================================
+   Tables and lists
+   ========================================================== */
+
+.table {
+  color: var(--atm-text);
+}
+
+.table > thead > tr > th {
+  background-color: #FBFBFD;
+  border-bottom: 1px solid var(--atm-border);
+  color: var(--atm-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.table > tbody > tr > td {
+  border-top: 1px solid var(--atm-border);
+  vertical-align: middle;
+}
+
+.table > tbody > tr {
+  transition: background-color 0.15s ease;
+}
+
+.table-hover > tbody > tr:hover > td,
+.table-hover > tbody > tr:hover > th {
+  background-color: #F4F4FF;
+}
+
+.list-group-item {
+  border-color: var(--atm-border);
+}
+
+/* ==========================================================
+   Status badges
+   ========================================================== */
+
+.label,
+.badge {
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  letter-spacing: 0.02em;
+}
+
+.label-success,
+.badge-success {
+  background-color: var(--atm-success-soft);
+  color: #027A48;
+}
+
+.label-warning,
+.badge-warning {
+  background-color: var(--atm-warning-soft);
+  color: #B54708;
+}
+
+.label-danger,
+.badge-danger {
+  background-color: var(--atm-danger-soft);
+  color: #B42318;
+}
+
+.label-primary,
+.badge-primary,
+.label-info,
+.badge-info {
+  background-color: var(--atm-primary-soft);
+  color: var(--atm-primary-dark);
+}
+
+.label-default,
+.badge-default {
+  background-color: #F2F4F7;
+  color: var(--atm-muted);
+}
+
+/* ==========================================================
+   Dashboard
+   ========================================================== */
+
+.dashboard,
+#dashboard {
+  background-color: transparent;
+}
+
+.dashboard .panel,
+#dashboard .panel {
+  border-radius: var(--atm-radius-lg);
+}
+
+.dashboard .panel .panel-heading,
+#dashboard .panel .panel-heading {
+  border-bottom: none;
+  font-size: 13px;
+  color: var(--atm-muted);
+}
+
+.dashboard .panel .panel-body,
+#dashboard .panel .panel-body {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--atm-text);
+}
+
+/* ==========================================================
+   Login page
+   ========================================================== */
+
+.login-page,
+#login-page,
+body.login {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(91, 91, 214, 0.16), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(255, 184, 107, 0.20), transparent 45%),
+    var(--atm-bg);
+}
+
+.login-panel,
+.login-box,
+#login-panel {
+  background-color: var(--atm-surface);
+  border: 1px solid var(--atm-border);
+  border-radius: var(--atm-radius-lg);
+  box-shadow: 0 20px 60px rgba(16, 24, 40, 0.08);
+}
+
+/* ==========================================================
+   Scrollbars
+   ========================================================== */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D0D5DD;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #98A2B3;
+}
+
+/* ==========================================================
+   Mobile
+   ========================================================== */
+
+@media (max-width: 767px) {
+  .navbar-side,
+  .side-menu,
+  #nav-menu {
+    border-right: none;
+  }
+
+  .panel,
+  .panel-default,
+  .record-panel {
+    border-radius: var(--atm-radius);
+  }
+
+  .btn {
+    min-height: 44px;
+  }
+
+  .table-responsive {
+    border: none;
+  }
+}

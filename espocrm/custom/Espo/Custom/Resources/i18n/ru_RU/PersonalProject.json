@@ -1,0 +1,23 @@
+{
+    "scopeNames": {
+        "PersonalProject": "Проект"
+    },
+    "scopeNamesPlural": {
+        "PersonalProject": "Проекты"
+    },
+    "fields": {
+        "name": "Название",
+        "status": "Статус",
+        "targetAmount": "Цель (сумма)",
+        "dueDate": "Срок",
+        "notes": "Заметки"
+    },
+    "options": {
+        "status": {
+            "idea": "Идея",
+            "in_progress": "В работе",
+            "paused": "Приостановлен",
+            "done": "Завершён"
+        }
+    }
+}

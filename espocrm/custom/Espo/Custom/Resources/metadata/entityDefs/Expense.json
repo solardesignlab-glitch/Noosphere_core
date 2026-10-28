@@ -1,0 +1,36 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true
+        },
+        "amount": {
+            "type": "currency",
+            "required": true,
+            "min": 0
+        },
+        "category": {
+            "type": "enum",
+            "options": [
+                "rent",
+                "supplies",
+                "ads",
+                "salary",
+                "personal",
+                "other"
+            ],
+            "default": "other"
+        },
+        "date": {
+            "type": "date",
+            "required": true
+        },
+        "isPersonal": {
+            "type": "bool",
+            "default": false
+        },
+        "notes": {
+            "type": "text"
+        }
+    }
+}

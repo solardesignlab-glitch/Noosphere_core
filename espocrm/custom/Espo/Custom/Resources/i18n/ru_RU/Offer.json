@@ -1,0 +1,25 @@
+{
+    "scopeNames": {
+        "Offer": "Услуга"
+    },
+    "scopeNamesPlural": {
+        "Offer": "Услуги"
+    },
+    "fields": {
+        "name": "Название",
+        "price": "Цена",
+        "durationMin": "Длительность (мин)",
+        "category": "Категория",
+        "isActive": "Активна",
+        "description": "Описание"
+    },
+    "options": {
+        "category": {
+            "nails": "Ногти",
+            "hair": "Волосы",
+            "cosmetology": "Косметология",
+            "massage": "Массаж",
+            "other": "Другое"
+        }
+    }
+}

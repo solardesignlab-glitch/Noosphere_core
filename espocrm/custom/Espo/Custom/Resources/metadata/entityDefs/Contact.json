@@ -1,0 +1,14 @@
+{
+    "fields": {
+        "bookingConsent": {
+            "type": "bool"
+        },
+        "consentDate": {
+            "type": "date"
+        },
+        "depositBalance": {
+            "type": "currency",
+            "min": 0
+        }
+    }
+}

@@ -1,0 +1,11 @@
+[
+    {
+        label: Обзор,
+        rows: [
+            [{name: name}, {name: amount}],
+            [{name: category}, {name: date}],
+            [{name: isPersonal}, false],
+            [{name: notes}, false]
+        ]
+    }
+]

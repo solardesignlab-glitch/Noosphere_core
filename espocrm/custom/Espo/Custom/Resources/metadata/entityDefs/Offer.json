@@ -1,0 +1,33 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true
+        },
+        "price": {
+            "type": "currency",
+            "min": 0
+        },
+        "durationMin": {
+            "type": "int",
+            "min": 0
+        },
+        "category": {
+            "type": "enum",
+            "options": [
+                "nails",
+                "hair",
+                "cosmetology",
+                "massage",
+                "other"
+            ]
+        },
+        "isActive": {
+            "type": "bool",
+            "default": true
+        },
+        "description": {
+            "type": "text"
+        }
+    }
+}

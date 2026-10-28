@@ -1,0 +1,26 @@
+{
+    "scopeNames": {
+        "Expense": "Расход"
+    },
+    "scopeNamesPlural": {
+        "Expense": "Расходы"
+    },
+    "fields": {
+        "name": "Что потрачено",
+        "amount": "Сумма",
+        "category": "Категория",
+        "date": "Дата",
+        "isPersonal": "Личный расход",
+        "notes": "Заметки"
+    },
+    "options": {
+        "category": {
+            "rent": "Аренда",
+            "supplies": "Расходники",
+            "ads": "Реклама",
+            "salary": "Зарплата",
+            "personal": "Личное",
+            "other": "Другое"
+        }
+    }
+}

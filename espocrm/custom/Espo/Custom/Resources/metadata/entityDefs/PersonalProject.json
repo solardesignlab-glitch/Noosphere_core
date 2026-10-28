@@ -1,0 +1,28 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true
+        },
+        "status": {
+            "type": "enum",
+            "options": [
+                "idea",
+                "in_progress",
+                "paused",
+                "done"
+            ],
+            "default": "idea"
+        },
+        "targetAmount": {
+            "type": "currency",
+            "min": 0
+        },
+        "dueDate": {
+            "type": "date"
+        },
+        "notes": {
+            "type": "text"
+        }
+    }
+}

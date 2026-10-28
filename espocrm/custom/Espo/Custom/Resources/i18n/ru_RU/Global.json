@@ -1,0 +1,16 @@
+{
+  "scopeNames": {
+    "Offer": "Услуга",
+    "Specialist": "Специалист",
+    "Session": "Запись",
+    "Expense": "Расход",
+    "PersonalProject": "Личный проект"
+  },
+  "scopeNamesPlural": {
+    "Offer": "Услуги",
+    "Specialist": "Специалисты",
+    "Session": "Записи",
+    "Expense": "Расходы",
+    "PersonalProject": "Личные проекты"
+  }
+}

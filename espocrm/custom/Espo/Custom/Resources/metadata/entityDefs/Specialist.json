@@ -1,0 +1,21 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true
+        },
+        "phone": {
+            "type": "phone"
+        },
+        "specialty": {
+            "type": "varchar"
+        },
+        "isActive": {
+            "type": "bool",
+            "default": true
+        },
+        "notes": {
+            "type": "text"
+        }
+    }
+}

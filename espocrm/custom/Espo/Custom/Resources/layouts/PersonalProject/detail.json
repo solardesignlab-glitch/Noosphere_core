@@ -1,0 +1,10 @@
+[
+    {
+        label: Обзор,
+        rows: [
+            [{name: name}, {name: status}],
+            [{name: targetAmount}, {name: dueDate}],
+            [{name: notes}, false]
+        ]
+    }
+]

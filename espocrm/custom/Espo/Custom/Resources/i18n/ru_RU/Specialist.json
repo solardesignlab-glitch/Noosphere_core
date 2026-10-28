@@ -1,0 +1,15 @@
+{
+    "scopeNames": {
+        "Specialist": "Исполнитель"
+    },
+    "scopeNamesPlural": {
+        "Specialist": "Исполнители"
+    },
+    "fields": {
+        "name": "Имя",
+        "phone": "Телефон",
+        "specialty": "Специализация",
+        "isActive": "Активен",
+        "notes": "Заметки"
+    }
+}
