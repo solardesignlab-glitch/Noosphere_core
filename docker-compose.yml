@@ -16,6 +16,8 @@ services:
       ESPOCRM_SITE_URL: ${SITE_URL}
     volumes:
       - espocrm_data:/var/www/html/data
+      - ./espocrm/custom:/var/www/html/custom
+      - ./espocrm/client/custom:/var/www/html/client/custom
     ports:
       - "8081:80"
     healthcheck:
@@ -58,8 +60,11 @@ services:
       context: ./services/telegram
     container_name: ucp_telegram
     restart: unless-stopped
+    profiles:
+      - telegram
     depends_on:
-      - espocrm
+      espocrm:
+        condition: service_healthy
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       ESPOCRM_URL: ${ESPOCRM_URL}
@@ -68,7 +73,7 @@ services:
       ADMIN_TELEGRAM_ID: ${ADMIN_TELEGRAM_ID}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET}
     ports:
-      - "8090:8000"  # Правильно отформатированный список
+      - "8090:8000"
 
 volumes:
   espocrm_data:
