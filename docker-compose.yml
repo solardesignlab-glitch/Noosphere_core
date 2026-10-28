@@ -30,14 +30,15 @@ services:
     container_name: ucp_database
     restart: unless-stopped
     environment:
-      MARIADB_DATABASE: ${DB_NAME}
-      MARIADB_USER: ${DB_USER}
-      MARIADB_PASSWORD: ${DB_PASSWORD}
-      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - database_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     healthcheck:
-      # Оставляем существующий healthcheck, так как он специфичен для MariaDB
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 20s
       start_period: 10s
@@ -67,10 +68,9 @@ services:
       ADMIN_TELEGRAM_ID: ${ADMIN_TELEGRAM_ID}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET}
     ports:
-      - "8090:8000"
+      - "8090:8000"  # Правильно отформатированный список
 
 volumes:
   espocrm_data:
   database_data:
   redis_data:
-  espocrm_custom_client:
