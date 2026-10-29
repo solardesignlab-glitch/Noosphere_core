@@ -31,3 +31,20 @@ Thumbs.db
 
 # Тесты
 coverage/
+
+# Local session and audit artifacts
+Modelfile
+Session.json
+chat.json
+audit_prompt.txt
+audit_review_prompt.txt
+deep_audit.txt
+deep_audit_prompt.txt
+docs/qwen_audit_review_draft.txt
+nrp_main_diff.txt
+nrp_package_diff.txt
+nrp_vite_diff.txt
+project_context.txt
+project_files.csv
+session_diff.txt
+vite_diff.txt
