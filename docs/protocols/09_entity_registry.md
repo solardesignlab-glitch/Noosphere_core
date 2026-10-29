@@ -24,19 +24,82 @@
 
 ## Ядро платформы
 
+## Сравнительный контур стран
+
 | Сущность | Название | Статус | Назначение | Ключевые поля |
 |---|---|---|---|---|
-| CParty | Участник рынка | Planned | Единый объект физлица или компании: клиент, партнёр, поставщик | name, partyType, status, country |
-| COrganization | Организация | Planned | Юрлицо или компания участника | name, inn, country, legalForm, status |
-| CPartner | Партнёр | Planned | Партнёрские отношения участника | party, organization, partnerType, status |
-| COffer | Предложение | Planned | Общее предложение рынка: товар или услуга | name, offerType, category, status |
-| CProduct | Товар | Planned | Материальный товар | offer, sku, unit, stockType |
-| CDeal | Сделка | Planned | Коммерческая операция между участниками | party, offer, amount, currency, status |
-| CFinanceRecord | Финансовая операция | Planned | Доход, расход, амортизация, износ | date, amount, currency, recordType, category |
-| CBusinessModel | Бизнес-модель | Planned | Модель деятельности для наблюдения | name, owner, status, country |
-| CIndicator | Показатель | Planned | Метрика бизнес-модели | name, code, unit, calculationType, frequency |
-| CIndicatorValue | Значение показателя | Planned | Фактическое значение показателя | indicator, businessModel, value, measuredAt, sourceType |
-| CResourceSnapshot | Снимок ресурса | Planned | Ручной учёт ресурсов и финансовых показателей | businessModel, resourceType, name, value, unit, measuredAt |
+| CCountry | Страна сравнения | Planned | Страна в аналитическом контуре БРИКС | name, code, currency, status |
+| CCountryIndicator | Показатель страны | Planned | Экономический или финансовый показатель страны | country, code, name, unit, frequency, source |
+| CCountryIndicatorValue | Значение показателя страны | Planned | Историческое или текущее значение показателя | countryIndicator, value, measuredAt, period, source, methodology |
+| CComparison | Сравнение стран | Planned | Сравнение стран по выбранным показателям и периоду | name, countries, indicators, periodFrom, periodTo, status |
+
+## Первый сравнительный контур
+
+```text
+Страны:
+- Россия
+- Китай
+
+Область:
+Экономика и финансы
+
+Горизонт:
+Исторические данные с 2015 года
+и текущие значения.
+
+Первичные показатели:
+- ВВП
+- Темп роста ВВП
+- Инфляция
+- Ключевая ставка
+- Расходы на R&D, % ВВП
+```
+
+## Связи сравнительного контура
+
+```text
+CCountry → CCountryIndicator
+CCountryIndicator → CCountryIndicatorValue
+
+CCountry → CRegulation
+CCountry → CDataSource
+
+CComparison
+  → включает CCountry
+  → включает CCountryIndicator
+  → строится по CCountryIndicatorValue
+```
+
+## Правило источника
+
+Каждое значение показателя страны должно содержать:
+
+- страну;
+- показатель;
+- значение;
+- дату или период;
+- источник;
+- методику;
+- статус проверки.
+
+Без источника значение не добавляется в систему.
+
+Национальный источник приоритетнее международного,
+если методики сопоставимы.
+
+Если методики различаются,
+в записи фиксируются обе методики,
+а сравнение помечается как условное.
+
+## Граница AI
+
+AI может помогать структурировать и сравнивать
+подтверждённые данные.
+
+AI не делает правовых, политических
+или инвестиционных выводов.
+
+Решение принимает исследователь.
 
 ## Замороженная вертикаль «услуги с записью»
 
