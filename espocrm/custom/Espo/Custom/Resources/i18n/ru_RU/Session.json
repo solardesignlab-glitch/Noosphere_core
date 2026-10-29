@@ -1,13 +1,19 @@
 {
-    scopeNames: {Session: Запись},
-    scopeNamesPlural: {Session: Записи},
-    fields: {
-        contact: Клиент,
-        specialist: Специалист,
-        offer: Услуга,
-        startAt: Начало,
-        endAt: Окончание,
-        status: Статус,
-        source: Источник,
-        depositAmount: Депозит,
-        depositStatus: Статус
+  "scopeNames": {
+    "Session": "Запись"
+  },
+  "scopeNamesPlural": {
+    "Session": "Записи"
+  },
+  "fields": {
+    "contact": "Клиент",
+    "specialist": "Специалист",
+    "offer": "Услуга",
+    "startAt": "Начало",
+    "endAt": "Окончание",
+    "status": "Статус",
+    "source": "Источник",
+    "depositAmount": "Депозит",
+    "depositStatus": "Статус депозита"
+  }
+}
