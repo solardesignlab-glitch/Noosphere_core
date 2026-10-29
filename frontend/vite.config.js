@@ -5,7 +5,7 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [
     react({
-      include: /\.(js|jsx|ts|tsx)\$/,
+      include: /\.(js|jsx|ts|tsx)$/,
       babel: {
         babelHelpers: 'bundled'
       }
@@ -19,7 +19,13 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    strictPort: true
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8090',
+        changeOrigin: true
+      }
+    }
   },
   build: {
     outDir: 'dist',
