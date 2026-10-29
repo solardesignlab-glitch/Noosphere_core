@@ -1,0 +1,9 @@
+{
+    "fields": {
+        "phone": "Телефон"
+    },
+    "links": [],
+    "labels": {
+        "Create CMaster": "Create Мастер"
+    }
+}

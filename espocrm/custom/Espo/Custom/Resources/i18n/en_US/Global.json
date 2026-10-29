@@ -1,0 +1,10 @@
+{
+    "scopeNames": {
+        "CMaster": "Мастер",
+        "CService": "Услуга"
+    },
+    "scopeNamesPlural": {
+        "CMaster": "Masters",
+        "CService": "Services"
+    }
+}
