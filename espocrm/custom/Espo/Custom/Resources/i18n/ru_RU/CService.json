@@ -1,0 +1,17 @@
+{
+    "scopeNames": {
+        "CService": "Услуга"
+    },
+    "scopeNamesPlural": {
+        "CService": "Услуги"
+    },
+    "labels": {
+        "Create CService": "Создать услугу"
+    },
+    "fields": {
+        "name": "Название",
+        "description": "Описание",
+        "duration": "Длительность, минуты",
+        "price": "Цена"
+    }
+}
