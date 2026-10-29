@@ -1,10 +1,10 @@
-[
-    {
-        label: Обзор,
-        rows: [
-            [{name: name}, {name: specialty}],
-            [{name: phone}, {name: isActive}],
-            [{name: notes}, false]
-        ]
-    }
+﻿[
+  {
+    "label": "Обзор",
+    "rows": [
+      [{"name": "name"}, {"name": "specialty"}],
+      [{"name": "phone"}, {"name": "isActive"}],
+      [{"name": "notes"}, false]
+    ]
+  }
 ]

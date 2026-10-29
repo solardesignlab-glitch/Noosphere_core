@@ -1,11 +1,11 @@
-[
-    {
-        label: Обзор,
-        rows: [
-            [{name: name}, {name: price}],
-            [{name: durationMin}, {name: category}],
-            [{name: isActive}, false],
-            [{name: description}, false]
-        ]
-    }
+﻿[
+  {
+    "label": "Обзор",
+    "rows": [
+      [{"name": "name"}, {"name": "price"}],
+      [{"name": "durationMin"}, {"name": "category"}],
+      [{"name": "isActive"}, false],
+      [{"name": "description"}, false]
+    ]
+  }
 ]

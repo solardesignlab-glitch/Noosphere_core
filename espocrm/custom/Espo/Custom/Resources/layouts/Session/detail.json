@@ -1,15 +1,15 @@
-[
-    {
-        label: Обзор,
-        rows: [
-            [{name: contact}, {name: specialist}],
-            [{name: offer}, {name: status}],
-            [{name: startAt}, {name: endAt}],
-            [{name: source}, {name: depositAmount}],
-            [{name: depositStatus}, {name: paymentMethod}],
-            [{name: canceledBy}, false],
-            [{name: cancelReason}, false],
-            [{name: reminderSentAt}, false]
-        ]
-    }
+﻿[
+  {
+    "label": "Обзор",
+    "rows": [
+      [{"name": "contact"}, {"name": "specialist"}],
+      [{"name": "offer"}, {"name": "status"}],
+      [{"name": "startAt"}, {"name": "endAt"}],
+      [{"name": "source"}, {"name": "depositAmount"}],
+      [{"name": "depositStatus"}, {"name": "paymentMethod"}],
+      [{"name": "canceledBy"}, false],
+      [{"name": "cancelReason"}, false],
+      [{"name": "reminderSentAt"}, false]
+    ]
+  }
 ]
