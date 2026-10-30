@@ -16,18 +16,26 @@ TASK_MODELS = {
     "code_review": OLLAMA_CODE_MODEL,
     "specification": OLLAMA_CODE_MODEL,
     "audit": OLLAMA_CODE_MODEL,
+    "ux": OLLAMA_MODEL,
 }
 
 
 class ChatRequest(BaseModel):
     message: str
     history: list[dict] = []
+    model: str | None = None
 
 
 class TaskRequest(BaseModel):
     taskType: str
     message: str
     context: str = ""
+
+
+class TestRequest(BaseModel):
+    model: str
+    message: str
+    systemPrompt: str = ""
 
 
 @router.get("/health")
@@ -49,8 +57,89 @@ async def health():
     }
 
 
+@router.get("/models")
+async def models():
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.get(f"{OLLAMA_URL}/api/tags")
+            response.raise_for_status()
+            data = response.json()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Ollama error: {exc}")
+
+    models = []
+
+    for item in data.get("models", []):
+        details = item.get("details", {})
+
+        models.append(
+            {
+                "id": item.get("name"),
+                "name": item.get("name"),
+                "provider": "ollama",
+                "size": item.get("size"),
+                "parameterSize": details.get("parameter_size"),
+                "quantization": details.get("quantization_level"),
+                "contextLength": details.get("context_length"),
+                "modifiedAt": item.get("modified_at"),
+                "capabilities": item.get("capabilities", []),
+                "status": "installed",
+            }
+        )
+
+    return {
+        "provider": "ollama",
+        "url": OLLAMA_URL,
+        "count": len(models),
+        "models": models,
+    }
+
+
+@router.post("/test")
+async def test_model(request: TestRequest):
+    messages = []
+
+    if request.systemPrompt:
+        messages.append(
+            {
+                "role": "system",
+                "content": request.systemPrompt,
+            }
+        )
+
+    messages.append(
+        {
+            "role": "user",
+            "content": request.message,
+        }
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=120) as client:
+            response = await client.post(
+                f"{OLLAMA_URL}/api/chat",
+                json={
+                    "model": request.model,
+                    "messages": messages,
+                    "stream": False,
+                },
+            )
+            response.raise_for_status()
+            data = response.json()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Ollama error: {exc}")
+
+    return {
+        "provider": "ollama",
+        "model": request.model,
+        "reply": data.get("message", {}).get("content", "").strip(),
+    }
+
+
 @router.post("/chat")
 async def chat(request: ChatRequest):
+    selected_model = request.model or OLLAMA_MODEL
+
     messages = [
         {
             "role": "system",
@@ -65,17 +154,18 @@ async def chat(request: ChatRequest):
     for item in request.history[-10:]:
         role = item.get("role", "user")
         content = item.get("content", "")
+
         if role in ("user", "assistant") and content:
             messages.append({"role": role, "content": content})
 
     messages.append({"role": "user", "content": request.message})
 
     try:
-        async with httpx.AsyncClient(timeout=60) as client:
+        async with httpx.AsyncClient(timeout=120) as client:
             response = await client.post(
                 f"{OLLAMA_URL}/api/chat",
                 json={
-                    "model": OLLAMA_MODEL,
+                    "model": selected_model,
                     "messages": messages,
                     "stream": False,
                 },
@@ -88,7 +178,7 @@ async def chat(request: ChatRequest):
     return {
         "reply": data.get("message", {}).get("content", "").strip(),
         "provider": "ollama",
-        "model": OLLAMA_MODEL,
+        "model": selected_model,
     }
 
 

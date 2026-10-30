@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 import httpx
 
@@ -52,6 +53,25 @@ class EspoClient:
             "priority": "High",
         }
         return await self.request("POST", "/Task", payload)
+
+    async def get_appointments_by_date(self, date: str):
+        path = (
+            "/Appointment"
+            "?orderBy=dateStart"
+            "&order=asc"
+            "&limit=100"
+            f"&where[0][type]=and"
+            f"&where[0][value][0][type]=equals"
+            f"&where[0][value][0][attribute]=dateStart"
+            f"&where[0][value][0][value]={date}"
+        )
+
+        data = await self.request("GET", path)
+        return data.get("list", [])
+
+    async def get_today_appointments(self):
+        today = datetime.now().strftime("%Y-%m-%d")
+        return await self.get_appointments_by_date(today)
 
 
 espo = EspoClient()
