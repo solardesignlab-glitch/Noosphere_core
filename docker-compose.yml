@@ -1,4 +1,4 @@
-services:
+﻿services:
   espocrm:
     image: espocrm/espocrm:latest
     container_name: ucp_espocrm
@@ -65,6 +65,8 @@ services:
     depends_on:
       espocrm:
         condition: service_healthy
+    env_file:
+      - services/telegram/.env
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       ESPOCRM_URL: ${ESPOCRM_URL}

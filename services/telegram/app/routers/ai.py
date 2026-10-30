@@ -1,8 +1,11 @@
-﻿import os
+﻿import logging
+import os
 
 import httpx
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/ai", tags=["AI"])
 
@@ -19,23 +22,34 @@ TASK_MODELS = {
     "ux": OLLAMA_MODEL,
 }
 
+ALLOWED_MODELS = {OLLAMA_MODEL, OLLAMA_CODE_MODEL}
+
 
 class ChatRequest(BaseModel):
-    message: str
-    history: list[dict] = []
+    message: str = Field(min_length=1, max_length=8000)
+    history: list[dict] = Field(default_factory=list, max_length=20)
     model: str | None = None
 
 
 class TaskRequest(BaseModel):
     taskType: str
-    message: str
-    context: str = ""
+    message: str = Field(min_length=1, max_length=16000)
+    context: str = Field(default="", max_length=32000)
 
 
 class TestRequest(BaseModel):
     model: str
-    message: str
-    systemPrompt: str = ""
+    message: str = Field(min_length=1, max_length=8000)
+    systemPrompt: str = Field(default="", max_length=8000)
+
+
+def validate_model(model: str) -> str:
+    if model not in ALLOWED_MODELS:
+        raise HTTPException(
+            status_code=400,
+            detail="Requested model is not allowed",
+        )
+    return model
 
 
 @router.get("/health")
@@ -64,8 +78,12 @@ async def models():
             response = await client.get(f"{OLLAMA_URL}/api/tags")
             response.raise_for_status()
             data = response.json()
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Ollama error: {exc}")
+    except Exception:
+        logger.exception("Ollama request failed")
+        raise HTTPException(
+            status_code=502,
+            detail="AI service is temporarily unavailable",
+        )
 
     models = []
 
@@ -97,6 +115,8 @@ async def models():
 
 @router.post("/test")
 async def test_model(request: TestRequest):
+    validate_model(request.model)
+
     messages = []
 
     if request.systemPrompt:
@@ -126,8 +146,12 @@ async def test_model(request: TestRequest):
             )
             response.raise_for_status()
             data = response.json()
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Ollama error: {exc}")
+    except Exception:
+        logger.exception("Ollama request failed")
+        raise HTTPException(
+            status_code=502,
+            detail="AI service is temporarily unavailable",
+        )
 
     return {
         "provider": "ollama",
@@ -139,6 +163,7 @@ async def test_model(request: TestRequest):
 @router.post("/chat")
 async def chat(request: ChatRequest):
     selected_model = request.model or OLLAMA_MODEL
+    validate_model(selected_model)
 
     messages = [
         {
@@ -172,8 +197,12 @@ async def chat(request: ChatRequest):
             )
             response.raise_for_status()
             data = response.json()
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Ollama error: {exc}")
+    except Exception:
+        logger.exception("Ollama request failed")
+        raise HTTPException(
+            status_code=502,
+            detail="AI service is temporarily unavailable",
+        )
 
     return {
         "reply": data.get("message", {}).get("content", "").strip(),
@@ -237,8 +266,12 @@ async def task(request: TaskRequest):
             )
             response.raise_for_status()
             data = response.json()
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Ollama error: {exc}")
+    except Exception:
+        logger.exception("Ollama request failed")
+        raise HTTPException(
+            status_code=502,
+            detail="AI service is temporarily unavailable",
+        )
 
     return {
         "taskType": request.taskType,
