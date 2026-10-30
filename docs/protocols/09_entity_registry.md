@@ -10,6 +10,7 @@
 - Нельзя создавать сущность, если уже есть аналогичная.
 - При изменении сущности обновлять её статус и назначение.
 - Удаление или переименование сущности фиксируется в `07_decision_log.md`.
+- Сущности, относящиеся к функциям вне скоупа, синхронизируются с `scope_registry.md`.
 
 ## Статусы
 
@@ -54,7 +55,6 @@ CParty → CPartner
 CParty → CDeal
 
 COffer → CProduct
-COffer → CService
 
 CParty → CDeal ← COffer
 CDeal → CFinanceRecord
@@ -65,6 +65,8 @@ CBusinessModel → CIndicatorValue
 
 CBusinessModel → CResourceSnapshot
 ```
+
+Примечание: в ядре услуги описываются через `COffer` с типом `service`. Связь `COffer → CService` не используется: `CService` относится только к замороженной вертикали.
 
 ## Правило услуг
 
@@ -82,6 +84,8 @@ CBusinessModel → CResourceSnapshot
 | CCountryIndicator | Показатель страны | Planned | Экономический или финансовый показатель страны | country, code, name, unit, frequency, source |
 | CCountryIndicatorValue | Значение показателя страны | Planned | Историческое или текущее значение показателя | countryIndicator, value, measuredAt, period, source, methodology |
 | CComparison | Сравнение стран | Planned | Сравнение стран по выбранным показателям и периоду | name, countries, indicators, periodFrom, periodTo, status |
+| CRegulation | Правовое регулирование | Planned | Правовые нормы и ограничения страны | country, name, category, status, source |
+| CDataSource | Источник данных | Planned | Внешний источник данных для показателей | name, url, type, reliability, status |
 
 ## Первый сравнительный контур
 
@@ -146,6 +150,8 @@ AI не делает правовых, политических или инве�
 
 Решение принимает исследователь.
 
+Статус AI-функций определяется в `scope_registry.md`.
+
 ## Правило создания новой сущности
 
 Перед созданием ответить на вопросы:
@@ -156,5 +162,6 @@ AI не делает правовых, политических или инве�
 4. С какими сущностями она связана?
 5. Какой у неё статус?
 6. Как изменение будет зафиксировано?
+7. Не относится ли сущность к функции вне скоупа (проверить `scope_registry.md`)?
 
 Если хотя бы один ответ неизвестен — сущность не создаётся.
