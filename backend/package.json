@@ -1,0 +1,18 @@
+{
+  "name": "atmosfera-backend",
+  "version": "1.0.0",
+  "description": "AI backend для платформы Атмосфера",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "multer": "^2.5.0",
+    "openai": "^7.45.1"
+  }
+}
