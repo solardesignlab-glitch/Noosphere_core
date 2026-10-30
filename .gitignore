@@ -48,3 +48,17 @@ project_context.txt
 project_files.csv
 session_diff.txt
 vite_diff.txt
+
+# Local AI and protocol artifacts
+/ai_raw_response.txt
+/ai_test_result.txt
+/protocols_all.txt
+
+# Local backups
+/backups/
+*.bak
+*.backup-*
+
+# Local helper scripts, review separately before tracking
+/start-all.ps1
+/get-upcoming-sessions.ps1
