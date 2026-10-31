@@ -1,59 +1,15 @@
-const API_KEY = import.meta.env.VITE_ESPO_API_KEY;
-
-async function request(path, options = {}) {
-  const response = await fetch(`/api/v1${path}`, {
-    ...options,
-    headers: {
-      "X-Api-Key": API_KEY,
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error(`EspoCRM API error: ${response.status}`);
-  }
-
-  return response.json();
-}
+import { backendRequest } from "./backend";
 
 export function getUpcomingSessions(limit = 10) {
-  const now = new Date();
-
-  const nowLocal = new Date(
-    now.getTime() - now.getTimezoneOffset() * 60000
-  )
-    .toISOString()
-    .slice(0, 19)
-    .replace("T", " ");
-
-  const where = encodeURIComponent(
-    JSON.stringify([
-      {
-        type: "after",
-        attribute: "startAt",
-        value: nowLocal
-      }
-    ])
-  );
-
-  const query = new URLSearchParams({
-    maxSize: String(limit),
-    orderBy: "startAt",
-    order: "asc",
-    where,
-    select: "id,name,status,startAt,endAt,specialistName"
-  });
-
-  return request(`/Session?${query}`);
+  return backendRequest(`/api/records/sessions?limit=${limit}`);
 }
 
 export async function getSession(id) {
-  return request(`/Session/${id}`);
+  return backendRequest(`/api/records/sessions/${id}`);
 }
 
 export async function updateSessionStatus(id, status) {
-  return request(`/Session/${id}`, {
+  return backendRequest(`/api/records/sessions/${id}`, {
     method: "PUT",
     body: JSON.stringify({
       status

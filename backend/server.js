@@ -7,6 +7,20 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+
+import {
+  seedOwner,
+  signToken,
+  requireAuth,
+  requireRole,
+  registerUser,
+  authenticateUser
+} from "./auth.js";
+
+import healthRouter from "./src/routes/health.js";
+import { errorHandler } from "./src/middleware/errors.js";
+
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -70,6 +84,44 @@ const mediaUpload = multer({
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
+
+const ESPO_URL = process.env.ESPOCRM_URL;
+const ESPO_KEY = process.env.ESPOCRM_API_KEY;
+
+async function espocrmRequest(path, options = {}) {
+  const requestUrl = `${ESPO_URL}/api/v1${path}`;
+
+  console.log("ESPOCRM_REQUEST_URL:", requestUrl);
+
+  const response = await fetch(requestUrl, {
+    ...options,
+    headers: {
+      "X-Api-Key": ESPO_KEY,
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    }
+  });
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    console.error("ESPOCRM_ERROR:", response.status, text);
+
+    throw Object.assign(
+      new Error(`EspoCRM API error: ${response.status}`),
+      { status: response.status }
+    );
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw Object.assign(
+      new Error("EspoCRM вернул некорректный JSON"),
+      { status: 502 }
+    );
+  }
+}
 
 const DESIGN_SYSTEM_PROMPT = `
 Ты — AI-ассистент платформы «Атмосфера».
@@ -184,12 +236,147 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(uploadsPath));
+app.use("/api/v1", healthRouter);
+
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     service: "atmosfera-backend"
   });
 });
+
+app.post("/api/auth/register", requireAuth, requireRole("owner"), async (req, res) => {
+  try {
+    const { email, password, role } = req.body || {};
+
+    const user = await registerUser({ email, password, role });
+
+    res.status(201).json({ user });
+  } catch (error) {
+    res.status(error.status || 500).json({
+      detail: error.message || "Не удалось создать пользователя"
+    });
+  }
+});
+
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+
+    const user = await authenticateUser({ email, password });
+    const token = signToken(user);
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        organizationId: user.organizationId
+      }
+    });
+  } catch (error) {
+    res.status(error.status || 500).json({
+      detail: error.message || "Не удалось выполнить вход"
+    });
+  }
+});
+
+app.get("/api/auth/me", requireAuth, (req, res) => {
+  res.json({ user: req.user });
+});
+
+app.get(
+  "/api/records/sessions",
+  requireAuth,
+  async (req, res) => {
+    try {
+      const limit = Number(req.query.limit || 10);
+      const now = new Date();
+
+      const nowLocal = new Date(
+        now.getTime() - now.getTimezoneOffset() * 60000
+      )
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+
+      const where = JSON.stringify([
+        {
+          type: "after",
+          attribute: "startAt",
+          value: nowLocal
+        }
+      ]);
+
+      const query = new URLSearchParams({
+        maxSize: String(limit),
+        orderBy: "startAt",
+        order: "asc",
+        where,
+        select: "id,name,status,startAt,endAt,specialistName"
+      });
+
+      const data = await espocrmRequest(`/Session?${query}`);
+
+      res.json(data);
+    } catch (error) {
+      console.error(error);
+
+      res.status(error.status || 500).json({
+        error: error.message || "Не удалось получить записи"
+      });
+    }
+  }
+);
+
+app.get(
+  "/api/records/sessions/:id",
+  requireAuth,
+  async (req, res) => {
+    try {
+      const data = await espocrmRequest(`/Session/${req.params.id}`);
+
+      res.json(data);
+    } catch (error) {
+      console.error(error);
+
+      res.status(error.status || 500).json({
+        error: error.message || "Не удалось получить запись"
+      });
+    }
+  }
+);
+
+app.put(
+  "/api/records/sessions/:id",
+  requireAuth,
+  express.json(),
+  async (req, res) => {
+    try {
+      const { status } = req.body || {};
+
+      if (!status) {
+        return res.status(400).json({
+          error: "Нужен статус"
+        });
+      }
+
+      const data = await espocrmRequest(`/Session/${req.params.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ status })
+      });
+
+      res.json(data);
+    } catch (error) {
+      console.error(error);
+
+      res.status(error.status || 500).json({
+        error: error.message || "Не удалось обновить запись"
+      });
+    }
+  }
+);
 
 app.post(
   "/api/agent/analyze-design",
@@ -294,7 +481,7 @@ ${userQuestion}
         }
       }
 
-            res.json({
+      res.json({
         answer: rawAnswer,
         analysis
       });
@@ -311,7 +498,6 @@ ${userQuestion}
   }
 );
 
-     
 app.get("/api/media", (req, res) => {
   try {
     const files = fs
@@ -398,7 +584,7 @@ app.post("/api/ai/chat", express.json(), async (req, res) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "qwen2.5:7b",
+        model: process.env.LLM_MODEL || "qwen2.5:7b",
         messages: [
           {
             role: "system",
@@ -436,7 +622,6 @@ app.post("/api/ai/chat", express.json(), async (req, res) => {
     });
   }
 });
-
 
 app.get("/api/models", async (req, res) => {
   try {
@@ -519,6 +704,9 @@ app.post("/api/agent/propose-code", express.json(), async (req, res) => {
     });
   }
 });
+
+app.use(errorHandler);
+await seedOwner();
 
 app.listen(process.env.PORT || 4000, () => {
   console.log(

@@ -11,6 +11,7 @@
 - При изменении сущности обновлять её статус и назначение.
 - Удаление или переименование сущности фиксируется в `07_decision_log.md`.
 - Сущности, относящиеся к функциям вне скоупа, синхронизируются с `scope_registry.md`.
+- Для каждой сущности указывается домен и основной источник истины согласно Закону 12.
 
 ## Статусы
 
@@ -25,67 +26,122 @@
 
 ## Ядро платформы
 
-| Сущность | Название | Статус | Назначение | Ключевые поля |
-|---|---|---|---|---|
-| CParty | Участник рынка | Planned | Единый объект физлица или компании: клиент, партнёр, поставщик | name, partyType, status, country |
-| COrganization | Организация | Planned | Юрлицо или компания участника | name, inn, country, legalForm, status |
-| CPartner | Партнёр | Planned | Партнёрские отношения участника | party, organization, partnerType, status |
-| COffer | Предложение | Planned | Общее предложение рынка: товар или услуга | name, offerType, category, status |
-| CProduct | Товар | Planned | Материальный товар | offer, sku, unit, stockType |
-| CDeal | Сделка | Planned | Коммерческая операция между участниками | party, offer, amount, currency, status |
-| CFinanceRecord | Финансовая операция | Planned | Доход, расход, амортизация, износ | date, amount, currency, recordType, category |
-| CBusinessModel | Бизнес-модель | Planned | Модель деятельности для наблюдения | name, owner, status, country |
-| CIndicator | Показатель | Planned | Метрика бизнес-модели | name, code, unit, calculationType, frequency |
-| CIndicatorValue | Значение показателя | Planned | Фактическое значение показателя | indicator, businessModel, value, measuredAt, sourceType |
-| CResourceSnapshot | Снимок ресурса | Planned | Ручной учёт ресурсов и финансовых показателей | businessModel, resourceType, name, value, unit, measuredAt |
+| Сущность | Название | Статус | Домен | Источник истины | Назначение | Ключевые поля |
+|---|---|---|---|---|---|---|
+| COrganization | Организация | Planned | Операционный контур | Ядро «Атмосферы» | Юрлицо или компания участника | name, inn, country, legalForm, status |
+| CParty | Участник рынка | Planned | Операционный контур | Ядро «Атмосферы» | Единый объект физлица или компании: клиент, партнёр, поставщик | name, partyType, status, country |
+| CPartner | Партнёр | Planned | Операционный контур | Ядро «Атмосферы» | Партнёрские отношения участника | party, organization, partnerType, status |
+| COffer | Предложение | Planned | Операционный контур | Ядро «Атмосферы» | Общее предложение рынка: товар или услуга | name, offerType, category, status |
+| CProduct | Товар | Merged | Операционный контур | Ядро «Атмосферы» | Объединён с `COffer(type=product)`; отдельная сущность товара в ядре не создаётся | — |
+| CDeal | Сделка | Planned | Операционный контур | Ядро «Атмосферы» | Коммерческая операция между участниками | party, offer, amount, currency, status |
+| CFinanceRecord | Финансовая операция | Planned | Операционный контур | Ядро «Атмосферы» | Доход, расход, амортизация, износ | date, amount, currency, recordType, category |
+| CBusinessModel | Бизнес-модель | Planned | Ресурсная экономика | Ядро «Атмосферы» | Модель деятельности для наблюдения | name, owner, status, country |
+| CIndicator | Показатель | Planned | Ресурсная экономика | Ядро «Атмосферы» | Метрика бизнес-модели | name, code, unit, calculationType, frequency |
+| CIndicatorValue | Значение показателя | Planned | Ресурсная экономика | Ядро «Атмосферы» | Фактическое значение показателя | indicator, businessModel, value, measuredAt, sourceType |
+| CResourceSnapshot | Снимок ресурса | Planned | Ресурсная экономика | Ядро «Атмосферы» | Значение или состояние ресурса на дату | resource, businessModel, value, unit, measuredAt, source |
+
+## Активы и ресурсы
+
+| Сущность | Название | Статус | Домен | Источник истины | Назначение | Ключевые поля |
+|---|---|---|---|---|---|---|
+| CAsset | Актив | Planned | Капитал владельца | Ядро «Атмосферы» | Имущество, накопления, вложения и другие ценности | name, assetType, quantity, currency, purchaseValue, currentValue, ownership, status, valuationDate |
+| CResource | Операционный ресурс | Planned | Операционный контур | Ядро «Атмосферы» | Объект, используемый в оказании услуги или выполнении заказа | name, resourceType, asset, organization, isActive, capacity, costPerHour |
+| CCustomerAsset | Ресурс клиента | Planned | Операционный контур | Ядро «Атмосферы» | Объект клиента, который обслуживается или участвует в заказах | customer, assetType, name, serialNumber, status, purchaseDate, notes |
+
+### Правило разделения
+
+| Вопрос | Сущность |
+|---|---|
+| Сколько объект стоит и кому принадлежит? | `CAsset` |
+| Можно ли объект использовать в работе и насколько он загружен? | `CResource` |
+| Какой объект клиента мы обслуживаем? | `CCustomerAsset` |
+| Каково состояние или значение ресурса на дату? | `CResourceSnapshot` |
+
+### Связи
+
+```text
+CAsset → CResource
+CResource → CResourceSnapshot
+CParty → CCustomerAsset
+CCustomerAsset → CDeal
+CResource → CDeal
+```
+
+Пример: автомобиль компании может быть `CAsset` — для стоимости и принадлежности — и одновременно `CResource` — для выездного сервиса. Машина клиента будет `CCustomerAsset`.
 
 ## Замороженная вертикаль «услуги с записью»
 
-| Сущность | Название | Статус | Назначение | Ключевые поля |
-|---|---|---|---|---|
-| CMaster | Мастера | Frozen | Хранение мастеров замороженной вертикали | Имя, телефон, специализация |
-| CService | Услуги | Frozen | Каталог услуг замороженной вертикали | Название, длительность, цена |
-| CAppointment | Записи | Frozen | Запись клиента к мастеру | Клиент, мастер, услуга, дата, статус |
-
-## Связи ядра
-
-```text
-CParty → COrganization
-CParty → CPartner
-CParty → CDeal
-
-COffer → CProduct
-
-CParty → CDeal ← COffer
-CDeal → CFinanceRecord
-
-CBusinessModel → CIndicator
-CIndicator → CIndicatorValue
-CBusinessModel → CIndicatorValue
-
-CBusinessModel → CResourceSnapshot
-```
-
-Примечание: в ядре услуги описываются через `COffer` с типом `service`. Связь `COffer → CService` не используется: `CService` относится только к замороженной вертикали.
+| Сущность | Название | Статус | Домен | Источник истины | Назначение | Ключевые поля |
+|---|---|---|---|---|---|---|
+| CMaster | Мастер | Frozen | Услуги с записью | Ядро «Атмосферы» | Мастер замороженной вертикали | name, phone, specialization |
+| CService | Услуга | Frozen | Услуги с записью | Ядро «Атмосферы» | Услуга замороженной вертикали | name, duration, price |
+| CAppointment | Запись | Frozen | Услуги с записью | Ядро «Атмосферы» | Запись клиента к мастеру | customer, master, service, date, status |
 
 ## Правило услуг
 
-Существующая сущность `CService` сохраняется для замороженной вертикали «услуги с записью».
-
 В ядре платформы услуги описываются через `COffer` с типом `service`.
 
-Это предотвращает дублирование сущности услуг.
+Существующая `CService` сохраняется только для замороженной вертикали «услуги с записью».
+
+Нельзя создавать новую отдельную сущность услуги в ядре платформы.
+
+## Правило товаров и услуг
+
+Товары и услуги описываются через `COffer`:
+
+- услуга — `COffer(type=service)`;
+- товар — `COffer(type=product)`.
+
+Отдельные сущности `CProduct` и `CService` в ядре платформы не создаются.
+
+`CService` сохраняется только в замороженной вертикали «услуги с записью».
 
 ## Сравнительный контур стран
 
-| Сущность | Название | Статус | Назначение | Ключевые поля |
-|---|---|---|---|---|
-| CCountry | Страна сравнения | Planned | Страна в аналитическом контуре БРИКС | name, code, currency, status |
-| CCountryIndicator | Показатель страны | Planned | Экономический или финансовый показатель страны | country, code, name, unit, frequency, source |
-| CCountryIndicatorValue | Значение показателя страны | Planned | Историческое или текущее значение показателя | countryIndicator, value, measuredAt, period, source, methodology |
-| CComparison | Сравнение стран | Planned | Сравнение стран по выбранным показателям и периоду | name, countries, indicators, periodFrom, periodTo, status |
-| CRegulation | Правовое регулирование | Planned | Правовые нормы и ограничения страны | country, name, category, status, source |
-| CDataSource | Источник данных | Planned | Внешний источник данных для показателей | name, url, type, reliability, status |
+| Сущность | Название | Статус | Домен | Источник истины | Назначение | Ключевые поля |
+|---|---|---|---|---|---|---|
+| CCountry | Страна сравнения | Planned | Исследования | Официальные источники страны | Страна в аналитическом контуре | name, code, currency, status |
+| CCountryIndicator | Показатель страны | Planned | Исследования | Официальные источники страны | Экономический или финансовый показатель страны | country, code, name, unit, frequency, source |
+| CCountryIndicatorValue | Значение показателя страны | Planned | Исследования | Официальный первоисточник значения | Историческое или текущее значение показателя | countryIndicator, value, measuredAt, period, source, methodology |
+| CComparison | Сравнение стран | Planned | Исследования | Ядро «Атмосферы» | Сравнение стран по выбранным показателям и периоду | name, countries, indicators, periodFrom, periodTo, status |
+| CDataSource | Источник данных | Planned | Исследования | Ядро «Атмосферы» | Внешний источник данных для показателей | name, url, type, reliability, status |
+
+## Юридический контур
+
+| Сущность | Название | Статус | Домен | Источник истины | Назначение | Ключевые поля |
+|---|---|---|---|---|---|---|
+| CJurisdiction | Юрисдикция | Planned | Юридический контур | Официальные источники юрисдикции | Страна, регион или уровень права | name, code, country, level, status |
+| CLegalNorm | Правовая норма | Planned | Юридический контур | Официальный первоисточник нормы | Закон, кодекс, постановление, письмо или судебная практика | jurisdiction, normType, title, number, editionDate, effectiveDate, status, sourceUrl |
+| CLegalTopic | Правовая тема | Planned | Юридический контур | Ядро «Атмосферы» | Тематическая группировка норм | name, code, description, status |
+| CLegalInterpretation | Толкование нормы | Planned | Юридический контур | Указанный источник толкования | Официальное, экспертное или рабочее толкование | norm, question, interpretation, sourceType, source, verifiedAt |
+| CComplianceRequirement | Требование комплаенса | Planned | Юридический контур | Ядро «Атмосферы» | Требование продукта, организации или клиента, вытекающее из нормы | norm, scope, requirement, implementation, verification, owner, dueDate, status |
+| CRegulation | Правовое регулирование | Planned | Юридический контур | Официальный первоисточник | Обобщённая связь страны с правовым регулированием | country, name, category, status, source |
+
+### Связи юридического контура
+
+```text
+CJurisdiction → CLegalNorm
+CLegalNorm → CLegalInterpretation
+CLegalNorm → CComplianceRequirement
+CLegalTopic → CLegalNorm
+CCountry → CJurisdiction
+CCountry → CRegulation
+CCountry → CDataSource
+```
+
+### Правило юридической нормы
+
+Норма добавляется только при наличии:
+
+- юрисдикции;
+- официального первоисточника;
+- редакции;
+- даты вступления в силу;
+- статуса;
+- даты проверки.
+
+AI может структурировать и сравнивать нормы,
+но не выдаёт юридическое заключение.
 
 ## Первый сравнительный контур
 
@@ -95,7 +151,7 @@ CBusinessModel → CResourceSnapshot
 - Китай
 
 Область:
-Экономика и финансы
+Экономика, финансы и базовые правовые требования
 
 Горизонт:
 Исторические данные с 2015 года
@@ -115,6 +171,7 @@ CBusinessModel → CResourceSnapshot
 CCountry → CCountryIndicator
 CCountryIndicator → CCountryIndicatorValue
 
+CCountry → CJurisdiction
 CCountry → CRegulation
 CCountry → CDataSource
 
@@ -148,7 +205,9 @@ AI может помогать структурировать и сравнив�
 
 AI не делает правовых, политических или инвестиционных выводов.
 
-Решение принимает исследователь.
+AI не выдаёт юридическое заключение.
+
+Решение принимает исследователь или уполномоченный специалист.
 
 Статус AI-функций определяется в `scope_registry.md`.
 
@@ -158,10 +217,12 @@ AI не делает правовых, политических или инве�
 
 1. Какой бизнес-объект она описывает?
 2. Есть ли уже сущность для этого объекта?
-3. Какие у неё ключевые поля?
-4. С какими сущностями она связана?
-5. Какой у неё статус?
-6. Как изменение будет зафиксировано?
-7. Не относится ли сущность к функции вне скоупа (проверить `scope_registry.md`)?
+3. К какому домену она относится?
+4. Какой для неё источник истины?
+5. Какие у неё ключевые поля?
+6. С какими сущностями она связана?
+7. Какой у неё статус?
+8. Как изменение будет зафиксировано?
+9. Не относится ли сущность к функции вне скоупа?
 
 Если хотя бы один ответ неизвестен — сущность не создаётся.

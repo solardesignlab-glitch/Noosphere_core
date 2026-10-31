@@ -62,3 +62,23 @@ vite_diff.txt
 # Local helper scripts, review separately before tracking
 /start-all.ps1
 /get-upcoming-sessions.ps1
+
+# Runtime logs
+*.log
+
+# Local user/auth data and secrets
+users.json
+users.json.backup
+
+# Local backups
+*.backup
+
+# Local test payloads
+test-*.json
+update-part.json
+
+# Temporary files
+Текстовый документ.txt
+
+# Local test servers
+test-server.mjs

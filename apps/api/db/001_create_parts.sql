@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS parts (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  organization_id INT UNSIGNED NOT NULL,
+  sku VARCHAR(64) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  brand VARCHAR(128) NULL,
+  price DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+  stock_qty INT NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  UNIQUE KEY uq_parts_organization_sku (organization_id, sku),
+  INDEX idx_parts_organization_name (organization_id, name)
+);
