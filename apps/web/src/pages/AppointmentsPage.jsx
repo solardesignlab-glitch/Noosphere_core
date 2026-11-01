@@ -363,14 +363,7 @@ export default function AppointmentsPage() {
 
             <label>
               <span>Окончание</span>
-              <input
-                type="datetime-local"
-                name="ends_at"
-                value={form.ends_at}
-                onChange={handleFormChange}
-                required
-              />
-            </label>
+</label>
 
             <label>
               <span>Статус</span>

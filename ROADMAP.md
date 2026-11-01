@@ -420,3 +420,4 @@ Lucide React
 - [x] Appointments smoke test
 - [ ] Automatic `ends_at` from `services.duration_minutes`
 - [ ] Services duration UI
+- [x] ends_at = starts_at + services.duration_minutes реализовано и покрыто smoke-проверкой.

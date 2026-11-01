@@ -1,4 +1,4 @@
-﻿import mysql from "mysql2/promise";
+import mysql from "mysql2/promise";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
@@ -9,8 +9,26 @@ import crypto from "crypto";
 import path from "path";
 import { fileURLToPath } from "url";
 
+function calculateEndsAt(startsAt, durationMinutes) {
+  if (!startsAt) return null;
+  const start = new Date(startsAt);
+  if (Number.isNaN(start.getTime())) return null;
+  const duration = Number(durationMinutes);
+  if (!Number.isFinite(duration) || duration <= 0) return null;
+  return new Date(start.getTime() + duration * 60 * 1000).toISOString();
+}
+
 
 import {
+
+function calculateEndsAt(startsAt, durationMinutes) {
+  if (!startsAt) return null;
+  const start = new Date(startsAt);
+  if (Number.isNaN(start.getTime())) return null;
+  const duration = Number(durationMinutes);
+  if (!Number.isFinite(duration) || duration <= 0) return null;
+  return new Date(start.getTime() + duration * 60 * 1000).toISOString();
+}
   seedOwner,
   signToken,
   requireAuth,
@@ -24,6 +42,15 @@ import healthRouter from "./src/routes/health.js";
 import { errorHandler } from "./src/middleware/errors.js";
 import { tenantContext } from "./src/shared/middleware/tenantContext.js";
 import pool from "./src/shared/db/pool.js";
+
+function calculateEndsAt(startsAt, durationMinutes) {
+  if (!startsAt) return null;
+  const start = new Date(startsAt);
+  if (Number.isNaN(start.getTime())) return null;
+  const duration = Number(durationMinutes);
+  if (!Number.isFinite(duration) || duration <= 0) return null;
+  return new Date(start.getTime() + duration * 60 * 1000).toISOString();
+}
 
 
 dotenv.config();

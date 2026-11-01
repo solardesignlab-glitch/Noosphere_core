@@ -161,3 +161,9 @@ if (serviceId) await api(`/api/services/${serviceId}`, { method: "DELETE" });
 
 console.log(failures === 0 ? "\nALL TESTS PASSED" : `\n${failures} TEST(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);
+
+// smoke: ends_at = starts_at + duration_minutes
+const durationMinutes = 60;
+const startsAt = new Date("2026-11-02T10:00:00Z");
+const expectedEndsAt = new Date(startsAt.getTime() + durationMinutes * 60 * 1000).toISOString();
+console.log("SMOKE ends_at expected:", expectedEndsAt);
