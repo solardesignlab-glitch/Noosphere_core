@@ -9,12 +9,18 @@ const conn = await mysql.createConnection({
   database: process.env.DB_NAME
 });
 
-const tables = ["masters", "services", "clients", "appointments"];
+const tables = [
+  "organizations",
+  "masters",
+  "services",
+  "clients",
+  "appointments"
+];
 
 for (const table of tables) {
-  const [rows] = await conn.query(`DESCRIBE ??`, [table]);
+  const [rows] = await conn.query("SHOW CREATE TABLE ??", [table]);
   console.log(`\n=== ${table} ===`);
-  console.table(rows);
+  console.log(rows[0]["Create Table"]);
 }
 
 await conn.end();
