@@ -1,26 +1,30 @@
 {
-    "scopeNames": {
-        "Expense": "Расход"
+  "scopeNames": {
+    "Expense": "Расход"
+  },
+  "scopeNamesPlural": {
+    "Expense": "Расходы"
+  },
+  "fields": {
+    "name": "Название",
+    "amount": "Сумма",
+    "category": "Категория",
+    "date": "Дата",
+    "isPersonal": "Личный расход",
+    "notes": "Заметки"
+  },
+  "options": {
+    "category": {
+      "rent": "Аренда",
+      "supplies": "Расходные материалы",
+      "ads": "Реклама",
+      "salary": "Зарплата",
+      "personal": "Личные",
+      "other": "Другое"
     },
-    "scopeNamesPlural": {
-        "Expense": "Расходы"
-    },
-    "fields": {
-        "name": "Что потрачено",
-        "amount": "Сумма",
-        "category": "Категория",
-        "date": "Дата",
-        "isPersonal": "Личный расход",
-        "notes": "Заметки"
-    },
-    "options": {
-        "category": {
-            "rent": "Аренда",
-            "supplies": "Расходники",
-            "ads": "Реклама",
-            "salary": "Зарплата",
-            "personal": "Личное",
-            "other": "Другое"
-        }
+    "isPersonal": {
+      "true": "Да",
+      "false": "Нет"
     }
+  }
 }

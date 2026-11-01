@@ -1,0 +1,95 @@
+{
+    "fields": {
+        "contact": {
+            "type": "link",
+            "required": true
+        },
+        "specialist": {
+            "type": "link",
+            "required": true
+        },
+        "offer": {
+            "type": "link",
+            "required": true
+        },
+        "startAt": {
+            "type": "datetime",
+            "required": true
+        },
+        "endAt": {
+            "type": "datetime",
+            "required": true
+        },
+        "status": {
+            "type": "enum",
+            "options": [
+                "new",
+                "confirmed",
+                "in_progress",
+                "completed",
+                "cancelled",
+                "no_show"
+            ],
+            "default": "new"
+        },
+        "source": {
+            "type": "enum",
+            "options": [
+                "telegram",
+                "phone",
+                "walk_in"
+            ],
+            "default": "telegram"
+        },
+        "depositAmount": {
+            "type": "currency",
+            "min": 0
+        },
+        "depositStatus": {
+            "type": "enum",
+            "options": [
+                "pending",
+                "paid",
+                "refunded",
+                "forfeited"
+            ],
+            "default": "pending"
+        },
+        "paymentMethod": {
+            "type": "enum",
+            "options": [
+                "telegram",
+                "transfer",
+                "on_site"
+            ]
+        },
+        "canceledBy": {
+            "type": "enum",
+            "options": [
+                "client",
+                "admin",
+                "salon"
+            ]
+        },
+        "cancelReason": {
+            "type": "text"
+        },
+        "reminderSentAt": {
+            "type": "datetime"
+        }
+    },
+    "links": {
+        "contact": {
+            "type": "belongsTo",
+            "entity": "Contact"
+        },
+        "specialist": {
+            "type": "belongsTo",
+            "entity": "Specialist"
+        },
+        "offer": {
+            "type": "belongsTo",
+            "entity": "Offer"
+        }
+    }
+}

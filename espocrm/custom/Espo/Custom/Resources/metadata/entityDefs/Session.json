@@ -41,6 +41,29 @@
             ],
             "default": "telegram"
         },
+        "plannedAmount": {
+            "type": "currency",
+            "min": 0
+        },
+        "factAmount": {
+            "type": "currency",
+            "min": 0
+        },
+        "discountAmount": {
+            "type": "currency",
+            "min": 0,
+            "default": 0
+        },
+        "paymentStatus": {
+            "type": "enum",
+            "options": [
+                "unpaid",
+                "partial",
+                "paid",
+                "refunded"
+            ],
+            "default": "unpaid"
+        },
         "depositAmount": {
             "type": "currency",
             "min": 0

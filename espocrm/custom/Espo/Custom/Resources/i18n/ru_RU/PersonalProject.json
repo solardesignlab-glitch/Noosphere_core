@@ -1,23 +1,23 @@
 {
-    "scopeNames": {
-        "PersonalProject": "Проект"
-    },
-    "scopeNamesPlural": {
-        "PersonalProject": "Проекты"
-    },
-    "fields": {
-        "name": "Название",
-        "status": "Статус",
-        "targetAmount": "Цель (сумма)",
-        "dueDate": "Срок",
-        "notes": "Заметки"
-    },
-    "options": {
-        "status": {
-            "idea": "Идея",
-            "in_progress": "В работе",
-            "paused": "Приостановлен",
-            "done": "Завершён"
-        }
+  "scopeNames": {
+    "PersonalProject": "Личный проект"
+  },
+  "scopeNamesPlural": {
+    "PersonalProject": "Личные проекты"
+  },
+  "fields": {
+    "name": "Название",
+    "status": "Статус",
+    "targetAmount": "Целевая сумма",
+    "dueDate": "Срок",
+    "notes": "Заметки"
+  },
+  "options": {
+    "status": {
+      "idea": "Идея",
+      "in_progress": "В работе",
+      "paused": "На паузе",
+      "done": "Завершён"
     }
+  }
 }

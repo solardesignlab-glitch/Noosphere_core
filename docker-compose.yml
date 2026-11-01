@@ -28,7 +28,7 @@
       retries: 3
 
   database:
-    image: mariadb:11
+    image: mariadb:10.11
     container_name: ucp_database
     restart: unless-stopped
     environment:
@@ -37,7 +37,7 @@
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - database_data:/var/lib/mysql
+      - database_data_v10:/var/lib/mysql
     ports:
       - "3306:3306"
     healthcheck:
@@ -80,4 +80,5 @@
 volumes:
   espocrm_data:
   database_data:
+  database_data_v10:
   redis_data:

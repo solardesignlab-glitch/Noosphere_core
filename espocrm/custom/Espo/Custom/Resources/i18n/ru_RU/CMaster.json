@@ -1,16 +1,13 @@
 {
-    "scopeNames": {
-        "CMaster": "Мастер"
-    },
-    "scopeNamesPlural": {
-        "CMaster": "Мастера"
-    },
-    "labels": {
-        "Create CMaster": "Создать мастера"
-    },
-    "fields": {
-        "name": "Имя",
-        "description": "Описание",
-        "phone": "Телефон"
-    }
+  "scopeNames": {
+    "CMaster": "Мастер"
+  },
+  "scopeNamesPlural": {
+    "CMaster": "Мастера"
+  },
+  "fields": {
+    "name": "Имя",
+    "description": "Описание",
+    "phone": "Телефон"
+  }
 }

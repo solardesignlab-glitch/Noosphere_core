@@ -1,3 +1,11 @@
-﻿[
-  ["contact", "specialist", "offer", "startAt", "endAt", "status"]
+[
+  {"name": "contact"},
+  {"name": "specialist"},
+  {"name": "offer"},
+  {"name": "startAt"},
+  {"name": "endAt"},
+  {"name": "status"},
+  {"name": "plannedAmount"},
+  {"name": "factAmount"},
+  {"name": "paymentStatus"}
 ]

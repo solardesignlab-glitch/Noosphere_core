@@ -1,0 +1,17 @@
+[
+  {
+    "label": "Overview",
+    "rows": [
+      [{"name": "contact"}, {"name": "specialist"}],
+      [{"name": "offer"}, {"name": "status"}],
+      [{"name": "startAt"}, {"name": "endAt"}],
+      [{"name": "source"}, {"name": "depositAmount"}],
+      [{"name": "depositStatus"}, {"name": "paymentMethod"}],
+      [{"name": "plannedAmount"}, {"name": "discountAmount"}],
+      [{"name": "factAmount"}, {"name": "paymentStatus"}],
+      [{"name": "canceledBy"}, false],
+      [{"name": "cancelReason"}, false],
+      [{"name": "reminderSentAt"}, false]
+    ]
+  }
+]

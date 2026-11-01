@@ -13,7 +13,52 @@
     "endAt": "Окончание",
     "status": "Статус",
     "source": "Источник",
-    "depositAmount": "Депозит",
-    "depositStatus": "Статус депозита"
+    "plannedAmount": "Плановая сумма",
+    "discountAmount": "Скидка",
+    "factAmount": "Фактическая сумма",
+    "paymentStatus": "Статус оплаты",
+    "depositAmount": "Сумма предоплаты",
+    "depositStatus": "Статус предоплаты",
+    "paymentMethod": "Способ оплаты",
+    "canceledBy": "Кто отменил",
+    "cancelReason": "Причина отмены",
+    "reminderSentAt": "Напоминание отправлено"
+  },
+  "options": {
+    "status": {
+      "new": "Новая",
+      "confirmed": "Подтверждена",
+      "in_progress": "В процессе",
+      "completed": "Завершена",
+      "cancelled": "Отменена",
+      "no_show": "Не пришёл"
+    },
+    "source": {
+      "telegram": "Telegram",
+      "phone": "Телефон",
+      "walk_in": "Визит"
+    },
+    "paymentStatus": {
+      "unpaid": "Не оплачено",
+      "partial": "Частично оплачено",
+      "paid": "Оплачено",
+      "refunded": "Возврат"
+    },
+    "depositStatus": {
+      "pending": "Ожидается",
+      "paid": "Получена",
+      "refunded": "Возвращена",
+      "forfeited": "Удержана"
+    },
+    "paymentMethod": {
+      "telegram": "Telegram",
+      "transfer": "Перевод",
+      "on_site": "На месте"
+    },
+    "canceledBy": {
+      "client": "Клиент",
+      "admin": "Администратор",
+      "salon": "Салон"
+    }
   }
 }

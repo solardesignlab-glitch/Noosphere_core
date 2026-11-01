@@ -1,7 +1,15 @@
 {
-    "fields": {
-        "bookingConsent": "Согласие на обработку ПД",
-        "consentDate": "Дата согласия",
-        "depositBalance": "Баланс депозита"
-    }
+  "scopeNames": {
+    "Contact": "Клиент"
+  },
+  "scopeNamesPlural": {
+    "Contact": "Клиенты"
+  },
+  "fields": {
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "bookingConsent": "Согласие на обработку ПД",
+    "consentDate": "Дата согласия",
+    "depositBalance": "Баланс депозита"
+  }
 }
