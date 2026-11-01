@@ -583,7 +583,7 @@ ${userQuestion}
 );
 
 
-app.get("/api/media", (req, res) => {
+app.get("/api/media", requireAuth, tenantContext, (req, res) => {
   try {
     const files = fs
       .readdirSync(uploadsPath)
@@ -611,7 +611,7 @@ app.get("/api/media", (req, res) => {
 });
 
 
-app.post("/api/media", mediaUpload.single("image"), (req, res) => {
+app.post("/api/media", requireAuth, tenantContext, mediaUpload.single("image"), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -636,7 +636,7 @@ app.post("/api/media", mediaUpload.single("image"), (req, res) => {
 });
 
 
-app.delete("/api/media/:fileName", (req, res) => {
+app.delete("/api/media/:fileName", requireAuth, tenantContext, (req, res) => {
   try {
     const fileName = path.basename(req.params.fileName);
     const filePath = path.join(uploadsPath, fileName);
@@ -666,7 +666,7 @@ app.delete("/api/media/:fileName", (req, res) => {
 });
 
 
-app.post("/api/ai/chat", express.json(), async (req, res) => {
+app.post("/api/ai/chat", requireAuth, tenantContext, express.json(), async (req, res) => {
   try {
     const { message, history = [] } = req.body;
 
@@ -725,7 +725,7 @@ app.post("/api/ai/chat", express.json(), async (req, res) => {
 });
 
 
-app.get("/api/models", async (req, res) => {
+app.get("/api/models", requireAuth, async (req, res) => {
   try {
     const response = await client.models.list();
     const models = [];
@@ -754,7 +754,7 @@ app.get("/api/models", async (req, res) => {
 });
 
 
-app.post("/api/agent/propose-code", express.json(), async (req, res) => {
+app.post("/api/agent/propose-code", requireAuth, tenantContext, requireRole(["owner", "admin"]), express.json(), async (req, res) => {
   try {
     const { task, filePath, fileContent } = req.body;
 
@@ -831,7 +831,7 @@ const dbPool = mysql.createPool({
 });
 
 
-app.get("/api/parts", async (req, res) => {
+app.get("/api/parts", requireAuth, tenantContext, async (req, res) => {
   try {
     const [rows] = await dbPool.query(
       `SELECT id, organization_id, sku, name, brand, price, stock_qty, is_active, created_at, updated_at
@@ -855,7 +855,7 @@ app.get("/api/parts", async (req, res) => {
 });
 
 
-app.post("/api/parts", async (req, res) => {
+app.post("/api/parts", requireAuth, tenantContext, async (req, res) => {
   try {
     const {
       organizationId,
@@ -954,7 +954,7 @@ app.post("/api/parts", async (req, res) => {
 });
 
 
-app.put("/api/parts/:id", async (req, res) => {
+app.put("/api/parts/:id", requireAuth, tenantContext, async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -1074,7 +1074,7 @@ app.put("/api/parts/:id", async (req, res) => {
 });
 
 
-app.delete("/api/parts/:id", async (req, res) => {
+app.delete("/api/parts/:id", requireAuth, tenantContext, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -1114,5 +1114,8 @@ app.listen(process.env.PORT || 4000, () => {
     `AI backend запущен: http://localhost:${process.env.PORT || 4000}`
   );
 });
+
+
+
 
 
