@@ -17,6 +17,10 @@ export async function backendRequest(path, options = {}) {
 
   const response = await fetch(`${BACKEND_URL}${path}`, {
     ...options,
+    body:
+      options.body && typeof options.body === "object" && !(options.body instanceof FormData)
+        ? JSON.stringify(options.body)
+        : options.body,
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.body instanceof FormData

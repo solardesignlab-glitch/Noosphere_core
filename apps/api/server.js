@@ -5,6 +5,7 @@ import multer from "multer";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import fs from "fs";
+import crypto from "crypto";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -22,6 +23,7 @@ import {
 import healthRouter from "./src/routes/health.js";
 import { errorHandler } from "./src/middleware/errors.js";
 import { tenantContext } from "./src/shared/middleware/tenantContext.js";
+import pool from "./src/shared/db/pool.js";
 
 
 dotenv.config();
@@ -311,7 +313,7 @@ app.post("/api/auth/login", async (req, res) => {
 
 
     const user = await authenticateUser({ email, password });
-    const token = signToken(user);
+    const token = await signToken(user);
 
 
     res.json({
@@ -836,10 +838,11 @@ app.get("/api/parts", requireAuth, tenantContext, async (req, res) => {
     const [rows] = await dbPool.query(
       `SELECT id, organization_id, sku, name, brand, price, stock_qty, is_active, created_at, updated_at
        FROM parts
+       WHERE organization_id = ?
        ORDER BY id DESC
-       LIMIT 100`
+       LIMIT 100`,
+      [req.organizationId]
     );
-
 
     res.json({
       items: rows
@@ -847,32 +850,18 @@ app.get("/api/parts", requireAuth, tenantContext, async (req, res) => {
   } catch (error) {
     console.error("PARTS_ERROR:", error);
 
-
     res.status(500).json({
       error: "Не удалось получить запчасти"
     });
   }
 });
 
-
 app.post("/api/parts", requireAuth, tenantContext, async (req, res) => {
   try {
-    const {
-      organizationId,
-      sku,
-      name,
-      brand,
-      price,
-      stockQty,
-      isActive
-    } = req.body || {};
+    const { sku, name, brand, price, stockQty, isActive } = req.body || {};
 
+    const organizationId = req.organizationId;
 
-    if (!organizationId) {
-      return res.status(400).json({
-        error: "Нужен organizationId"
-      });
-    }
 
 
     if (!sku || typeof sku !== "string" || !sku.trim()) {
@@ -953,37 +942,193 @@ app.post("/api/parts", requireAuth, tenantContext, async (req, res) => {
   }
 });
 
+// ==================== CLIENTS ====================
+
+app.get("/api/clients", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const search = String(req.query.search || "").trim();
+
+    let sql = `
+      SELECT id, organization_id, person_id, source, name, phone, email,
+             notes, is_active, created_at, updated_at
+      FROM clients
+      WHERE organization_id = ?
+    `;
+    const params = [req.organizationId];
+
+    if (search) {
+      sql += ` AND (name LIKE ? OR phone LIKE ? OR email LIKE ?)`;
+      const like = `%${search}%`;
+      params.push(like, like, like);
+    }
+
+    sql += ` ORDER BY name ASC LIMIT 200`;
+
+    const [rows] = await dbPool.query(sql, params);
+    res.json({ clients: rows });
+  } catch (error) {
+    console.error("GET_CLIENTS_ERROR:", error);
+    res.status(500).json({ error: "Не удалось получить клиентов" });
+  }
+});
+
+app.post("/api/clients", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { name, phone, email, notes, source, isActive = true } = req.body || {};
+
+    if (!name || !String(name).trim()) {
+      return res.status(400).json({ error: "Укажите имя клиента" });
+    }
+
+    const id = crypto.randomUUID();
+
+    await dbPool.query(
+      `INSERT INTO clients
+        (id, organization_id, person_id, source, name, phone, email, notes, is_active)
+       VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        req.organizationId,
+        source || null,
+        String(name).trim(),
+        phone || null,
+        email || null,
+        notes || null,
+        isActive ? 1 : 0
+      ]
+    );
+
+    const [rows] = await dbPool.query(
+      `SELECT id, organization_id, person_id, source, name, phone, email,
+              notes, is_active, created_at, updated_at
+       FROM clients
+       WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    res.status(201).json({ client: rows[0] });
+  } catch (error) {
+    console.error("CREATE_CLIENT_ERROR:", error);
+    res.status(500).json({ error: "Не удалось создать клиента" });
+  }
+});
+
+app.get("/api/clients/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await dbPool.query(
+      `SELECT id, organization_id, person_id, source, name, phone, email,
+              notes, is_active, created_at, updated_at
+       FROM clients
+       WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Клиент не найден" });
+    }
+
+    res.json({ client: rows[0] });
+  } catch (error) {
+    console.error("GET_CLIENT_ERROR:", error);
+    res.status(500).json({ error: "Не удалось получить клиента" });
+  }
+});
+
+app.put("/api/clients/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, phone, email, notes, source, isActive } = req.body || {};
+
+    const [existing] = await dbPool.query(
+      `SELECT id FROM clients WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    if (!existing.length) {
+      return res.status(404).json({ error: "Клиент не найден" });
+    }
+
+    if (!name || !String(name).trim()) {
+      return res.status(400).json({ error: "Укажите имя клиента" });
+    }
+
+    await dbPool.query(
+      `UPDATE clients
+       SET name = ?,
+           phone = ?,
+           email = ?,
+           notes = ?,
+           source = ?,
+           is_active = ?
+       WHERE id = ? AND organization_id = ?`,
+      [
+        String(name).trim(),
+        phone || null,
+        email || null,
+        notes || null,
+        source || null,
+        isActive === false ? 0 : 1,
+        id,
+        req.organizationId
+      ]
+    );
+
+    const [rows] = await dbPool.query(
+      `SELECT id, organization_id, person_id, source, name, phone, email,
+              notes, is_active, created_at, updated_at
+       FROM clients
+       WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    res.json({ client: rows[0] });
+  } catch (error) {
+    console.error("UPDATE_CLIENT_ERROR:", error);
+    res.status(500).json({ error: "Не удалось обновить клиента" });
+  }
+});
+
+app.delete("/api/clients/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await dbPool.query(
+      `DELETE FROM clients WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    if (!result.affectedRows) {
+      return res.status(404).json({ error: "Клиент не найден" });
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("DELETE_CLIENT_ERROR:", error);
+    res.status(500).json({ error: "Не удалось удалить клиента" });
+  }
+});
+
+// ==================== END CLIENTS ====================
 
 app.put("/api/parts/:id", requireAuth, tenantContext, async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      organizationId,
-      sku,
-      name,
-      brand,
-      price,
-      stockQty,
-      isActive
-    } = req.body || {};
+    const { sku, name, brand, price, stockQty, isActive } = req.body || {};
+
+    const organizationId = req.organizationId;
 
 
     const [existing] = await dbPool.query(
-      `SELECT id FROM parts WHERE id = ?`,
-      [id]
+      `SELECT id FROM parts WHERE id = ? AND organization_id = ?`,
+      [id, organizationId]
     );
 
 
     if (existing.length === 0) {
       return res.status(404).json({
         error: "Запчасть не найдена"
-      });
-    }
-
-
-    if (organizationId === undefined) {
-      return res.status(400).json({
-        error: "Нужен organizationId"
       });
     }
 
@@ -1024,23 +1169,22 @@ app.put("/api/parts/:id", requireAuth, tenantContext, async (req, res) => {
 
     await dbPool.query(
       `UPDATE parts
-       SET organization_id = ?,
-           sku = ?,
+       SET sku = ?,
            name = ?,
            brand = ?,
            price = ?,
            stock_qty = ?,
            is_active = ?
-       WHERE id = ?`,
+       WHERE id = ? AND organization_id = ?`,
       [
-        organizationId,
         sku.trim(),
         name.trim(),
         brand?.trim() || null,
         normalizedPrice,
         normalizedStockQty,
         isActive === false ? 0 : 1,
-        id
+        id,
+        organizationId
       ]
     );
 
@@ -1048,8 +1192,8 @@ app.put("/api/parts/:id", requireAuth, tenantContext, async (req, res) => {
     const [rows] = await dbPool.query(
       `SELECT id, organization_id, sku, name, brand, price, stock_qty, is_active, created_at, updated_at
        FROM parts
-       WHERE id = ?`,
-      [id]
+       WHERE id = ? AND organization_id = ?`,
+      [id, organizationId]
     );
 
 
@@ -1079,10 +1223,10 @@ app.delete("/api/parts/:id", requireAuth, tenantContext, async (req, res) => {
     const { id } = req.params;
 
 
-    const [result] = await dbPool.query(
-      `DELETE FROM parts WHERE id = ?`,
-      [id]
-    );
+   const [result] = await dbPool.query(
+  `DELETE FROM parts WHERE id = ? AND organization_id = ?`,
+  [id, req.organizationId]
+);
 
 
     if (result.affectedRows === 0) {
@@ -1105,6 +1249,555 @@ app.delete("/api/parts/:id", requireAuth, tenantContext, async (req, res) => {
   }
 });
 
+// ==================== SERVICES ====================
+
+app.get("/api/services", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const search = String(req.query.search || "").trim();
+
+    let sql = `
+      SELECT id, organization_id, name, description, price,
+             duration_minutes, is_active, created_at, updated_at
+      FROM services
+      WHERE organization_id = ?
+    `;
+    const params = [req.organizationId];
+
+    if (search) {
+      sql += ` AND name LIKE ?`;
+      params.push(`%${search}%`);
+    }
+
+    sql += ` ORDER BY name ASC LIMIT 200`;
+
+    const [rows] = await dbPool.query(sql, params);
+    res.json({ services: rows });
+  } catch (error) {
+    console.error("GET_SERVICES_ERROR:", error);
+    res.status(500).json({ error: "Не удалось получить услуги" });
+  }
+});
+
+app.post("/api/services", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const {
+      name,
+      description,
+      price = 0,
+      durationMinutes = 60,
+      isActive = true
+    } = req.body || {};
+
+    if (!name || !String(name).trim()) {
+      return res.status(400).json({ error: "Укажите название услуги" });
+    }
+
+    const normalizedPrice = Number(price);
+    const normalizedDuration = Number(durationMinutes);
+
+    if (!Number.isFinite(normalizedPrice) || normalizedPrice < 0) {
+      return res.status(400).json({ error: "Некорректная цена" });
+    }
+
+    if (!Number.isInteger(normalizedDuration) || normalizedDuration <= 0) {
+      return res.status(400).json({ error: "Длительность должна быть больше 0 минут" });
+    }
+
+    const id = crypto.randomUUID();
+
+    await dbPool.query(
+      `INSERT INTO services
+        (id, organization_id, name, description, price, duration_minutes, is_active)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        req.organizationId,
+        String(name).trim(),
+        description || null,
+        normalizedPrice,
+        normalizedDuration,
+        isActive ? 1 : 0
+      ]
+    );
+
+    const [rows] = await dbPool.query(
+      `SELECT id, organization_id, name, description, price,
+              duration_minutes, is_active, created_at, updated_at
+       FROM services
+       WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    res.status(201).json({ service: rows[0] });
+  } catch (error) {
+    console.error("CREATE_SERVICE_ERROR:", error);
+    res.status(500).json({ error: "Не удалось создать услугу" });
+  }
+});
+
+app.get("/api/services/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await dbPool.query(
+      `SELECT id, organization_id, name, description, price,
+              duration_minutes, is_active, created_at, updated_at
+       FROM services
+       WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Услуга не найдена" });
+    }
+
+    res.json({ service: rows[0] });
+  } catch (error) {
+    console.error("GET_SERVICE_ERROR:", error);
+    res.status(500).json({ error: "Не удалось получить услугу" });
+  }
+});
+
+app.put("/api/services/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      description,
+      price = 0,
+      durationMinutes = 60,
+      isActive
+    } = req.body || {};
+
+    const [existing] = await dbPool.query(
+      `SELECT id FROM services WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    if (!existing.length) {
+      return res.status(404).json({ error: "Услуга не найдена" });
+    }
+
+    if (!name || !String(name).trim()) {
+      return res.status(400).json({ error: "Укажите название услуги" });
+    }
+
+    const normalizedPrice = Number(price);
+    const normalizedDuration = Number(durationMinutes);
+
+    if (!Number.isFinite(normalizedPrice) || normalizedPrice < 0) {
+      return res.status(400).json({ error: "Некорректная цена" });
+    }
+
+    if (!Number.isInteger(normalizedDuration) || normalizedDuration <= 0) {
+      return res.status(400).json({ error: "Длительность должна быть больше 0 минут" });
+    }
+
+    await dbPool.query(
+      `UPDATE services
+       SET name = ?,
+           description = ?,
+           price = ?,
+           duration_minutes = ?,
+           is_active = ?
+       WHERE id = ? AND organization_id = ?`,
+      [
+        String(name).trim(),
+        description || null,
+        normalizedPrice,
+        normalizedDuration,
+        isActive === false ? 0 : 1,
+        id,
+        req.organizationId
+      ]
+    );
+
+    const [rows] = await dbPool.query(
+      `SELECT id, organization_id, name, description, price,
+              duration_minutes, is_active, created_at, updated_at
+       FROM services
+       WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    res.json({ service: rows[0] });
+  } catch (error) {
+    console.error("UPDATE_SERVICE_ERROR:", error);
+    res.status(500).json({ error: "Не удалось обновить услугу" });
+  }
+});
+
+app.delete("/api/services/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await dbPool.query(
+      `DELETE FROM services WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    if (!result.affectedRows) {
+      return res.status(404).json({ error: "Услуга не найдена" });
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("DELETE_SERVICE_ERROR:", error);
+    res.status(500).json({ error: "Не удалось удалить услугу" });
+  }
+});
+
+// ==================== END SERVICES ====================
+
+// ==================== MASTERS ====================
+
+app.get("/api/masters", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, name, phone, email, specialty, is_active, created_at, updated_at
+       FROM masters
+       WHERE organization_id = ?
+       ORDER BY created_at DESC`,
+      [req.organizationId]
+    );
+
+    res.json({ masters: rows });
+  } catch (error) {
+    console.error("GET_MASTERS_ERROR:", error);
+    res.status(500).json({ message: "Не удалось получить мастеров" });
+  }
+});
+
+app.post("/api/masters", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { name, phone, email, specialty, is_active } = req.body;
+
+    if (!name || String(name).trim() === "") {
+      return res.status(400).json({ message: "Укажите имя мастера" });
+    }
+
+    const id = crypto.randomUUID();
+
+    await pool.query(
+      `INSERT INTO masters
+        (id, organization_id, name, phone, email, specialty, is_active)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        req.organizationId,
+        String(name).trim(),
+        phone || null,
+        email || null,
+        specialty || null,
+        is_active === false ? 0 : 1,
+      ]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT id, name, phone, email, specialty, is_active, created_at, updated_at
+       FROM masters
+       WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    res.status(201).json({ master: rows[0] });
+  } catch (error) {
+    console.error("CREATE_MASTER_ERROR:", error);
+    res.status(500).json({ message: "Не удалось создать мастера" });
+  }
+});
+
+app.get("/api/masters/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, name, phone, email, specialty, is_active, created_at, updated_at
+       FROM masters
+       WHERE id = ? AND organization_id = ?`,
+      [req.params.id, req.organizationId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Мастер не найден" });
+    }
+
+    res.json({ master: rows[0] });
+  } catch (error) {
+    console.error("GET_MASTER_ERROR:", error);
+    res.status(500).json({ message: "Не удалось получить мастера" });
+  }
+});
+
+app.put("/api/masters/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { name, phone, email, specialty, is_active } = req.body;
+
+    const [existing] = await pool.query(
+      `SELECT id FROM masters WHERE id = ? AND organization_id = ?`,
+      [req.params.id, req.organizationId]
+    );
+
+    if (existing.length === 0) {
+      return res.status(404).json({ message: "Мастер не найден" });
+    }
+
+    await pool.query(
+      `UPDATE masters
+       SET name = ?, phone = ?, email = ?, specialty = ?, is_active = ?
+       WHERE id = ? AND organization_id = ?`,
+      [
+        name ?? existing[0].name,
+        phone ?? null,
+        email ?? null,
+        specialty ?? null,
+        is_active === false ? 0 : 1,
+        req.params.id,
+        req.organizationId,
+      ]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT id, name, phone, email, specialty, is_active, created_at, updated_at
+       FROM masters
+       WHERE id = ? AND organization_id = ?`,
+      [req.params.id, req.organizationId]
+    );
+
+    res.json({ master: rows[0] });
+  } catch (error) {
+    console.error("UPDATE_MASTER_ERROR:", error);
+    res.status(500).json({ message: "Не удалось обновить мастера" });
+  }
+});
+
+app.delete("/api/masters/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const [result] = await pool.query(
+      `DELETE FROM masters WHERE id = ? AND organization_id = ?`,
+      [req.params.id, req.organizationId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Мастер не найден" });
+    }
+
+    res.json({ message: "Мастер удалён" });
+  } catch (error) {
+    console.error("DELETE_MASTER_ERROR:", error);
+    res.status(500).json({ message: "Не удалось удалить мастера" });
+  }
+});
+
+// ==================== APPOINTMENTS ====================
+
+app.get("/api/appointments", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT
+         a.id,
+         a.client_id,
+         a.master_id,
+         a.service_id,
+         a.starts_at,
+         a.ends_at,
+         a.status,
+         a.notes,
+         a.created_at,
+         a.updated_at,
+         c.name AS client_name,
+         m.name AS master_name,
+         s.name AS service_name
+       FROM appointments a
+       LEFT JOIN clients c ON c.id = a.client_id
+       LEFT JOIN masters m ON m.id = a.master_id
+       LEFT JOIN services s ON s.id = a.service_id
+       WHERE a.organization_id = ?
+       ORDER BY a.starts_at DESC`,
+      [req.organizationId]
+    );
+
+    res.json({ appointments: rows });
+  } catch (error) {
+    console.error("GET_APPOINTMENTS_ERROR:", error);
+    res.status(500).json({ message: "Не удалось получить записи" });
+  }
+});
+
+app.post("/api/appointments", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { client_id, master_id, service_id, starts_at, ends_at, notes } = req.body || {};
+
+    if (!client_id || !master_id || !service_id || !starts_at || !ends_at) {
+      return res.status(400).json({
+        message: "Укажите клиента, мастера, услугу, время начала и окончания",
+      });
+    }
+
+    const start = new Date(starts_at);
+    const end = new Date(ends_at);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return res.status(400).json({ message: "Некорректное время записи" });
+    }
+
+    if (end <= start) {
+      return res.status(400).json({
+        message: "Время окончания должно быть позже времени начала",
+      });
+    }
+
+    const [conflicts] = await pool.query(
+      `SELECT id
+       FROM appointments
+       WHERE organization_id = ?
+         AND master_id = ?
+         AND status = 'scheduled'
+         AND starts_at < ?
+         AND ends_at > ?`,
+      [req.organizationId, master_id, end, start]
+    );
+
+    if (conflicts.length > 0) {
+      return res.status(409).json({
+        message: "У мастера уже есть запись в это время",
+      });
+    }
+
+    const id = crypto.randomUUID();
+
+    await pool.query(
+      `INSERT INTO appointments
+        (id, organization_id, client_id, master_id, service_id, starts_at, ends_at, status, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'scheduled', ?)`,
+      [id, req.organizationId, client_id, master_id, service_id, start, end, notes || null]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT
+         a.*,
+         c.name AS client_name,
+         m.name AS master_name,
+         s.name AS service_name
+       FROM appointments a
+       LEFT JOIN clients c ON c.id = a.client_id
+       LEFT JOIN masters m ON m.id = a.master_id
+       LEFT JOIN services s ON s.id = a.service_id
+       WHERE a.id = ? AND a.organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    res.status(201).json({ appointment: rows[0] });
+  } catch (error) {
+    console.error("CREATE_APPOINTMENT_ERROR:", error);
+    res.status(500).json({ message: "Не удалось создать запись" });
+  }
+});
+
+app.put("/api/appointments/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { client_id, master_id, service_id, starts_at, ends_at, status, notes } = req.body || {};
+
+    const [existing] = await pool.query(
+      `SELECT id FROM appointments WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    if (existing.length === 0) {
+      return res.status(404).json({ message: "Запись не найдена" });
+    }
+
+    const start = new Date(starts_at);
+    const end = new Date(ends_at);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return res.status(400).json({ message: "Некорректное время записи" });
+    }
+
+    if (end <= start) {
+      return res.status(400).json({
+        message: "Время окончания должно быть позже времени начала",
+      });
+    }
+
+    const [conflicts] = await pool.query(
+      `SELECT id
+       FROM appointments
+       WHERE organization_id = ?
+         AND master_id = ?
+         AND status = 'scheduled'
+         AND id <> ?
+         AND starts_at < ?
+         AND ends_at > ?`,
+      [req.organizationId, master_id, id, end, start]
+    );
+
+    if (conflicts.length > 0) {
+      return res.status(409).json({
+        message: "У мастера уже есть запись в это время",
+      });
+    }
+
+    await pool.query(
+      `UPDATE appointments
+       SET client_id = ?, master_id = ?, service_id = ?,
+           starts_at = ?, ends_at = ?, status = ?, notes = ?
+       WHERE id = ? AND organization_id = ?`,
+      [
+        client_id,
+        master_id,
+        service_id,
+        start,
+        end,
+        status || "scheduled",
+        notes || null,
+        id,
+        req.organizationId,
+      ]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT
+         a.*,
+         c.name AS client_name,
+         m.name AS master_name,
+         s.name AS service_name
+       FROM appointments a
+       LEFT JOIN clients c ON c.id = a.client_id
+       LEFT JOIN masters m ON m.id = a.master_id
+       LEFT JOIN services s ON s.id = a.service_id
+       WHERE a.id = ? AND a.organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    res.json({ appointment: rows[0] });
+  } catch (error) {
+    console.error("UPDATE_APPOINTMENT_ERROR:", error);
+    res.status(500).json({ message: "Не удалось обновить запись" });
+  }
+});
+
+app.delete("/api/appointments/:id", requireAuth, tenantContext, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await pool.query(
+      `DELETE FROM appointments WHERE id = ? AND organization_id = ?`,
+      [id, req.organizationId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Запись не найдена" });
+    }
+
+    res.json({ message: "Запись удалена" });
+  } catch (error) {
+    console.error("DELETE_APPOINTMENT_ERROR:", error);
+    res.status(500).json({ message: "Не удалось удалить запись" });
+  }
+});
+
+// ==================== END MASTERS ====================
+
 
 await seedOwner();
 
@@ -1114,6 +1807,10 @@ app.listen(process.env.PORT || 4000, () => {
     `AI backend запущен: http://localhost:${process.env.PORT || 4000}`
   );
 });
+
+
+
+
 
 
 

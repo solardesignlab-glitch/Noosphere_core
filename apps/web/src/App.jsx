@@ -7,7 +7,10 @@ import SessionsPage from "./pages/SessionsPage";
 import AiAssistantPage from "./pages/AiAssistantPage";
 import AgentPanel from "./components/AgentPanel";
 import LoginPage from "./pages/LoginPage";
-import PartsPage from "./pages/PartsPage";
+import ServicesPage from "./pages/ServicesPage";
+import ClientsPage from "./pages/ClientsPage";
+import MastersPage from "./pages/MastersPage";
+import AppointmentsPage from "./pages/AppointmentsPage";
 
 import { getStoredUser, logout } from "./api/backend";
 
@@ -143,11 +146,16 @@ export default function App() {
           <DashboardPage onOpenAssistant={() => setIsAgentOpen(true)} />
         )}
 
-        {visiblePage === "appointments" && (
-          <SessionsPage onOpenAssistant={() => setIsAgentOpen(true)} />
-        )}
+        {visiblePage === "appointments" && <AppointmentsPage />}
+
+        {visiblePage === "sessions" && (
+           <SessionsPage onOpenAssistant={() => setIsAgentOpen(true)} />
+         )}
 
         {visiblePage === "parts" && <PartsPage />}
+        
+        {visiblePage === "clients" && <ClientsPage />}
+        {visiblePage === "services" && <ServicesPage />}
 
         {visiblePage === "ai" && <AiAssistantPage />}
 
@@ -181,30 +189,7 @@ export default function App() {
           </section>
         )}
 
-        {["clients", "masters", "services"].includes(visiblePage) && (
-          <section className="page">
-            <header className="page__header">
-              <div>
-                <h1>{PAGE_TITLES[visiblePage]}</h1>
-                <p>Раздел будет подключён после MVP-дашборда.</p>
-              </div>
-
-              <button
-                className="button button--primary"
-                type="button"
-                onClick={() => setIsAgentOpen(true)}
-              >
-                Спросить AI
-              </button>
-            </header>
-
-            <div className="empty-state">
-              <div className="empty-state__icon">🚧</div>
-              <h2>Раздел в разработке</h2>
-              <p>Сначала завершим дашборд и страницу записей.</p>
-            </div>
-          </section>
-        )}
+                {visiblePage === "masters" && <MastersPage />}
       </main>
 
       {isAgentOpen && <AgentPanel onClose={() => setIsAgentOpen(false)} />}
