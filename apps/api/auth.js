@@ -1,64 +1,57 @@
-import bcrypt from "bcryptjs";
+﻿import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const usersPath = path.join(__dirname, "users.json");
+import crypto from "crypto";
+import pool from "./src/shared/db/pool.js";
 
 const ROLES = ["owner", "developer", "client"];
 
-function readUsers() {
-  if (!fs.existsSync(usersPath)) {
-    return [];
-  }
-
-  try {
-    return JSON.parse(fs.readFileSync(usersPath, "utf8"));
-  } catch {
-    return [];
-  }
-}
-
-function writeUsers(users) {
-  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2), "utf8");
-}
-
 export async function seedOwner() {
-  const users = readUsers();
-
-  if (users.some((user) => user.role === "owner")) {
-    return;
-  }
-
-  const email = process.env.OWNER_EMAIL;
+  const email = String(process.env.OWNER_EMAIL || "").toLowerCase();
   const password = process.env.OWNER_PASSWORD;
 
   if (!email || !password) {
-    console.warn("OWNER_EMAIL или OWNER_PASSWORD не заданы: владелец не создан");
+    console.warn("OWNER_EMAIL или OWNER_PASSWORD не заданы");
+    return;
+  }
+
+  const [existing] = await pool.query(
+    "SELECT id FROM users WHERE email = ? LIMIT 1",
+    [email]
+  );
+
+  if (existing.length) {
     return;
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
+  const userId = crypto.randomUUID();
 
-  users.push({
-    id: crypto.randomUUID(),
-    email: email.toLowerCase(),
-    passwordHash,
-    role: "owner",
-    organizationId: "atmosfera",
-    createdAt: new Date().toISOString()
-  });
+  await pool.query(
+    "INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)",
+    [userId, email, passwordHash]
+  );
 
-  writeUsers(users);
+  const [organizations] = await pool.query(
+    "SELECT id FROM organizations WHERE name = ? LIMIT 1",
+    ["AtmoOS Core"]
+  );
 
-  console.log(`Создан владелец: ${email}`);
+  if (!organizations.length) {
+    console.warn("Организация AtmoOS Core не найдена");
+    return;
+  }
+
+  await pool.query(
+    `INSERT INTO organization_members
+     (id, user_id, organization_id, role)
+     VALUES (?, ?, ?, ?)`,
+    [crypto.randomUUID(), userId, organizations[0].id, "owner"]
+  );
+
+  console.log("Создан владелец:", email);
 }
 
-export function signToken(user) {
+export async function signToken(user) {
   return jwt.sign(
     {
       sub: user.id,
@@ -78,7 +71,9 @@ export function requireAuth(req, res, next) {
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;
 
   if (!token) {
-    return res.status(401).json({ detail: "Требуется авторизация" });
+    return res.status(401).json({
+      detail: "Требуется авторизация"
+    });
   }
 
   try {
@@ -93,25 +88,31 @@ export function requireAuth(req, res, next) {
 
     next();
   } catch {
-    return res.status(401).json({ detail: "Недействительный или истёкший токен" });
+    return res.status(401).json({
+      detail: "Недействительный или истёкший токен"
+    });
   }
 }
 
 export function requireRole(...roles) {
   return (req, res, next) => {
     if (!req.user) {
-      return res.status(401).json({ detail: "Требуется авторизация" });
+      return res.status(401).json({
+        detail: "Требуется авторизация"
+      });
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ detail: "Недостаточно прав" });
+      return res.status(403).json({
+        detail: "Недостаточно прав"
+      });
     }
 
     next();
   };
 }
 
-export async function registerUser({ email, password, role }) {
+export async function registerUser({ email, password, role, organizationId }) {
   if (!email || !password) {
     throw Object.assign(new Error("Нужны email и password"), { status: 400 });
   }
@@ -120,26 +121,84 @@ export async function registerUser({ email, password, role }) {
     throw Object.assign(new Error("Недопустимая роль"), { status: 400 });
   }
 
-  const users = readUsers();
-  const normalizedEmail = email.toLowerCase();
-
-  if (users.some((user) => user.email === normalizedEmail)) {
-    throw Object.assign(new Error("Пользователь уже существует"), { status: 409 });
+  if (!organizationId) {
+    throw Object.assign(new Error("Нужна organizationId"), { status: 400 });
   }
 
+  const normalizedEmail = String(email).toLowerCase();
+
+  const [existing] = await pool.query(
+    "SELECT id FROM users WHERE email = ? LIMIT 1",
+    [normalizedEmail]
+  );
+
+  if (existing.length) {
+    throw Object.assign(
+      new Error("Пользователь уже существует"),
+      { status: 409 }
+    );
+  }
+
+  const userId = crypto.randomUUID();
   const passwordHash = await bcrypt.hash(password, 12);
 
-  const user = {
-    id: crypto.randomUUID(),
-    email: normalizedEmail,
-    passwordHash,
-    role,
-    organizationId: "atmosfera",
-    createdAt: new Date().toISOString()
-  };
+  await pool.query(
+    "INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)",
+    [userId, normalizedEmail, passwordHash]
+  );
 
-  users.push(user);
-  writeUsers(users);
+  await pool.query(
+    `INSERT INTO organization_members
+     (id, user_id, organization_id, role)
+     VALUES (?, ?, ?, ?)`,
+    [crypto.randomUUID(), userId, organizationId, role]
+  );
+
+  return {
+    id: userId,
+    email: normalizedEmail,
+    role,
+    organizationId
+  };
+}
+
+export async function authenticateUser({ email, password }) {
+  const normalizedEmail = String(email || "").toLowerCase();
+
+  const [rows] = await pool.query(
+    `SELECT
+       u.id,
+       u.email,
+       u.password_hash,
+       m.role,
+       m.organization_id AS organizationId
+     FROM users u
+     JOIN organization_members m ON m.user_id = u.id
+     WHERE u.email = ?
+     LIMIT 1`,
+    [normalizedEmail]
+  );
+
+  const user = rows[0];
+
+  if (!user) {
+    throw Object.assign(
+      new Error("Неверный email или пароль"),
+      { status: 401 }
+    );
+  }
+
+  const isValid = await bcrypt.compare(
+    String(password || ""),
+    user.password_hash
+  );
+
+  if (!isValid) {
+    throw Object.assign(
+      new Error("Неверный email или пароль"),
+      { status: 401 }
+    );
+  }
 
   return {
     id: user.id,
@@ -147,23 +206,4 @@ export async function registerUser({ email, password, role }) {
     role: user.role,
     organizationId: user.organizationId
   };
-}
-
-export async function authenticateUser({ email, password }) {
-  const users = readUsers();
-  const user = users.find(
-    (item) => item.email === String(email || "").toLowerCase()
-  );
-
-  if (!user) {
-    throw Object.assign(new Error("Неверный email или пароль"), { status: 401 });
-  }
-
-  const isValid = await bcrypt.compare(String(password || ""), user.passwordHash);
-
-  if (!isValid) {
-    throw Object.assign(new Error("Неверный email или пароль"), { status: 401 });
-  }
-
-  return user;
 }
