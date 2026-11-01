@@ -1,4 +1,4 @@
-﻿CREATE TABLE IF NOT EXISTS appointments (
+CREATE TABLE IF NOT EXISTS appointments (
   id CHAR(36) PRIMARY KEY,
   organization_id CHAR(36) NOT NULL,
   client_id CHAR(36) NOT NULL,
