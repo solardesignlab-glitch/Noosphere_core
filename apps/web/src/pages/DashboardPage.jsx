@@ -37,9 +37,9 @@ export default function DashboardPage() {
         setDashboardLoading(true);
         setDashboardError("");
 
-        const response = await fetch(APPOINTMENTS_URL, {
-          headers: {
-            Authorization: `Bearer ${getToken()}`
+   const response = await fetch(APPOINTMENTS_URL, {
+     headers: {
+      Authorization: `Bearer ${getToken()}`
           }
         });
 
@@ -151,7 +151,6 @@ export default function DashboardPage() {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`
-        },
         },
         body: JSON.stringify({
           message: question,
