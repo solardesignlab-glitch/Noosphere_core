@@ -411,3 +411,12 @@ Lucide React
 4. Добавить фильтры записей по дате, мастеру и статусу.
 5. Усилить проверку пересечений и ошибок бронирования.
 6. Затем перейти к UI/UX Foundation и Owner Dashboard.
+
+## Sprint 1 status
+
+- [x] Tenant-scoped clients CRUD
+- [x] Tenant-scoped appointments CRUD
+- [x] Master time-conflict validation
+- [x] Appointments smoke test
+- [ ] Automatic `ends_at` from `services.duration_minutes`
+- [ ] Services duration UI
