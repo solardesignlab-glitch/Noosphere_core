@@ -1,13 +1,12 @@
 CREATE TABLE IF NOT EXISTS services (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  tenant_id BIGINT UNSIGNED NOT NULL,
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  organization_id CHAR(36) NOT NULL,
   name VARCHAR(255) NOT NULL,
   description TEXT NULL,
-  duration_minutes INT UNSIGNED NOT NULL DEFAULT 60,
-  price_cents INT UNSIGNED NOT NULL DEFAULT 0,
+  price DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  duration_minutes INT NOT NULL DEFAULT 60,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY uq_services_tenant_name (tenant_id, name),
-  KEY idx_services_tenant_active (tenant_id, is_active)
+  KEY idx_services_organization (organization_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
