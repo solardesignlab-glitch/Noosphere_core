@@ -21,6 +21,7 @@ import {
 
 import healthRouter from "./src/routes/health.js";
 import { errorHandler } from "./src/middleware/errors.js";
+import { tenantContext } from "./src/shared/middleware/tenantContext.js";
 
 
 dotenv.config();
@@ -338,6 +339,7 @@ app.get("/api/auth/me", requireAuth, (req, res) => {
 app.get(
   "/api/records/sessions",
   requireAuth,
+  tenantContext,
   async (req, res) => {
     try {
       const limit = Number(req.query.limit || 10);
@@ -389,6 +391,7 @@ app.get(
 app.get(
   "/api/records/sessions/:id",
   requireAuth,
+  tenantContext,
   async (req, res) => {
     try {
       const data = await espocrmRequest(`/Session/${req.params.id}`);
@@ -410,6 +413,7 @@ app.get(
 app.put(
   "/api/records/sessions/:id",
   requireAuth,
+  tenantContext,
   express.json(),
   async (req, res) => {
     try {
@@ -1110,3 +1114,5 @@ app.listen(process.env.PORT || 4000, () => {
     `AI backend запущен: http://localhost:${process.env.PORT || 4000}`
   );
 });
+
+
