@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 const API_URL = "http://localhost:4000/api/appointments";
@@ -7,17 +7,17 @@ const MASTERS_URL = "http://localhost:4000/api/masters";
 const SERVICES_URL = "http://localhost:4000/api/services";
 
 const STATUS_OPTIONS = [
-  { value: "scheduled", label: "Запланирована" },
-  { value: "completed", label: "Завершена" },
-  { value: "cancelled", label: "Отменена" },
-  { value: "no_show", label: "Не пришёл" },
+  { value: "scheduled", label: "Р—Р°РїР»Р°РЅРёСЂРѕРІР°РЅР°" },
+  { value: "completed", label: "Р—Р°РІРµСЂС€РµРЅР°" },
+  { value: "cancelled", label: "РћС‚РјРµРЅРµРЅР°" },
+  { value: "no_show", label: "РќРµ РїСЂРёС€С‘Р»" },
 ];
 
 const STATUS_LABELS = {
-  scheduled: "Запланирована",
-  completed: "Завершена",
-  cancelled: "Отменена",
-  no_show: "Не пришёл",
+  scheduled: "Р—Р°РїР»Р°РЅРёСЂРѕРІР°РЅР°",
+  completed: "Р—Р°РІРµСЂС€РµРЅР°",
+  cancelled: "РћС‚РјРµРЅРµРЅР°",
+  no_show: "РќРµ РїСЂРёС€С‘Р»",
 };
 
 function getToken() {
@@ -46,7 +46,7 @@ function formatInterval(start, end) {
     month: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-  })} – ${endDate.toLocaleTimeString("ru-RU", {
+  })} вЂ“ ${endDate.toLocaleTimeString("ru-RU", {
     hour: "2-digit",
     minute: "2-digit",
   })}`;
@@ -67,14 +67,13 @@ export default function AppointmentsPage() {
   const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
-    client_id: "",
-    master_id: "",
-    service_id: "",
-    starts_at: "",
-    ends_at: "",
-    status: "scheduled",
-    notes: "",
-  });
+  client_id: "",
+  master_id: "",
+  service_id: "",
+  starts_at: "",
+  status: "scheduled",
+  notes: "",
+});
 
   const loadAll = async () => {
     try {
@@ -109,7 +108,7 @@ export default function AppointmentsPage() {
       setError(
         err.response?.data?.message ||
           err.response?.data?.detail ||
-          "Не удалось загрузить записи"
+          "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ Р·Р°РїРёСЃРё"
       );
     } finally {
       setLoading(false);
@@ -147,30 +146,22 @@ export default function AppointmentsPage() {
   }
 
   function resetForm() {
-    setForm({
-      client_id: "",
-      master_id: "",
-      service_id: "",
-      starts_at: "",
-      ends_at: "",
-      status: "scheduled",
-      notes: "",
-    });
-    setEditingId(null);
-  }
+  setForm({
+    client_id: "",
+    master_id: "",
+    service_id: "",
+    status: "scheduled",
+    notes: "",
+  });
+  setEditingId(null);
+}
 
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
 
-    if (
-      !form.client_id ||
-      !form.master_id ||
-      !form.service_id ||
-      !form.starts_at ||
-      !form.ends_at
-    ) {
-      setError("Заполните все обязательные поля");
+    if (!form.client_id || !form.master_id || !form.service_id || !form.starts_at) {
+      setError("Р—Р°РїРѕР»РЅРёС‚Рµ РІСЃРµ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рµ РїРѕР»СЏ");
       return;
     }
 
@@ -180,7 +171,6 @@ export default function AppointmentsPage() {
         master_id: form.master_id,
         service_id: form.service_id,
         starts_at: form.starts_at,
-        ends_at: form.ends_at,
         status: form.status,
         notes: form.notes,
       };
@@ -202,7 +192,7 @@ export default function AppointmentsPage() {
       setError(
         err.response?.data?.message ||
           err.response?.data?.detail ||
-          "Не удалось сохранить запись"
+          "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ Р·Р°РїРёСЃСЊ"
       );
     }
   }
@@ -214,7 +204,6 @@ export default function AppointmentsPage() {
       master_id: appointment.master_id || "",
       service_id: appointment.service_id || "",
       starts_at: toDatetimeLocal(appointment.starts_at),
-      ends_at: toDatetimeLocal(appointment.ends_at),
       status: appointment.status || "scheduled",
       notes: appointment.notes || "",
     });
@@ -222,7 +211,7 @@ export default function AppointmentsPage() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm("Удалить запись?")) return;
+    if (!window.confirm("РЈРґР°Р»РёС‚СЊ Р·Р°РїРёСЃСЊ?")) return;
 
     try {
       await axios.delete(`${API_URL}/${id}`, {
@@ -234,7 +223,7 @@ export default function AppointmentsPage() {
       setError(
         err.response?.data?.message ||
           err.response?.data?.detail ||
-          "Не удалось удалить запись"
+          "РќРµ СѓРґР°Р»РѕСЃСЊ СѓРґР°Р»РёС‚СЊ Р·Р°РїРёСЃСЊ"
       );
     }
   }
@@ -252,7 +241,6 @@ export default function AppointmentsPage() {
           master_id: appointment.master_id,
           service_id: appointment.service_id,
           starts_at: appointment.starts_at,
-          ends_at: appointment.ends_at,
           status,
           notes: appointment.notes,
         },
@@ -264,7 +252,7 @@ export default function AppointmentsPage() {
       setError(
         err.response?.data?.message ||
           err.response?.data?.detail ||
-          "Не удалось изменить статус"
+          "РќРµ СѓРґР°Р»РѕСЃСЊ РёР·РјРµРЅРёС‚СЊ СЃС‚Р°С‚СѓСЃ"
       );
     }
   }
@@ -273,8 +261,8 @@ export default function AppointmentsPage() {
     <div className="appointments">
       <div className="page-header">
         <div>
-          <h1>Записи</h1>
-          <p>Управляйте записями клиентов, мастеров и услугами</p>
+          <h1>Р—Р°РїРёСЃРё</h1>
+          <p>РЈРїСЂР°РІР»СЏР№С‚Рµ Р·Р°РїРёСЃСЏРјРё РєР»РёРµРЅС‚РѕРІ, РјР°СЃС‚РµСЂРѕРІ Рё СѓСЃР»СѓРіР°РјРё</p>
         </div>
 
         <button
@@ -288,7 +276,7 @@ export default function AppointmentsPage() {
             setIsFormOpen((prev) => !prev);
           }}
         >
-          {isFormOpen ? "Закрыть форму" : "Создать запись"}
+          {isFormOpen ? "Р—Р°РєСЂС‹С‚СЊ С„РѕСЂРјСѓ" : "РЎРѕР·РґР°С‚СЊ Р·Р°РїРёСЃСЊ"}
         </button>
       </div>
 
@@ -296,18 +284,18 @@ export default function AppointmentsPage() {
 
       {isFormOpen && (
         <form className="card appointment-form" onSubmit={handleSubmit}>
-          <h2>{editingId ? "Редактирование записи" : "Новая запись"}</h2>
+          <h2>{editingId ? "Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ Р·Р°РїРёСЃРё" : "РќРѕРІР°СЏ Р·Р°РїРёСЃСЊ"}</h2>
 
           <div className="form-grid">
             <label>
-              <span>Клиент</span>
+              <span>РљР»РёРµРЅС‚</span>
               <select
                 name="client_id"
                 value={form.client_id}
                 onChange={handleFormChange}
                 required
               >
-                <option value="">Выберите клиента</option>
+                <option value="">Р’С‹Р±РµСЂРёС‚Рµ РєР»РёРµРЅС‚Р°</option>
                 {clients.map((client) => (
                   <option key={client.id} value={client.id}>
                     {client.name}
@@ -317,14 +305,14 @@ export default function AppointmentsPage() {
             </label>
 
             <label>
-              <span>Мастер</span>
+              <span>РњР°СЃС‚РµСЂ</span>
               <select
                 name="master_id"
                 value={form.master_id}
                 onChange={handleFormChange}
                 required
               >
-                <option value="">Выберите мастера</option>
+                <option value="">Р’С‹Р±РµСЂРёС‚Рµ РјР°СЃС‚РµСЂР°</option>
                 {masters.map((master) => (
                   <option key={master.id} value={master.id}>
                     {master.name}
@@ -334,14 +322,14 @@ export default function AppointmentsPage() {
             </label>
 
             <label>
-              <span>Услуга</span>
+              <span>РЈСЃР»СѓРіР°</span>
               <select
                 name="service_id"
                 value={form.service_id}
                 onChange={handleFormChange}
                 required
               >
-                <option value="">Выберите услугу</option>
+                <option value="">Р’С‹Р±РµСЂРёС‚Рµ СѓСЃР»СѓРіСѓ</option>
                 {services.map((service) => (
                   <option key={service.id} value={service.id}>
                     {service.name}
@@ -351,7 +339,7 @@ export default function AppointmentsPage() {
             </label>
 
             <label>
-              <span>Начало</span>
+              <span>РќР°С‡Р°Р»Рѕ</span>
               <input
                 type="datetime-local"
                 name="starts_at"
@@ -362,11 +350,11 @@ export default function AppointmentsPage() {
             </label>
 
             <label>
-              <span>Окончание</span>
+              <span>РћРєРѕРЅС‡Р°РЅРёРµ</span>
 </label>
 
             <label>
-              <span>Статус</span>
+              <span>РЎС‚Р°С‚СѓСЃ</span>
               <select
                 name="status"
                 value={form.status}
@@ -381,18 +369,18 @@ export default function AppointmentsPage() {
             </label>
 
             <label>
-              <span>Комментарий</span>
+              <span>РљРѕРјРјРµРЅС‚Р°СЂРёР№</span>
               <input
                 name="notes"
                 value={form.notes}
                 onChange={handleFormChange}
-                placeholder="Необязательно"
+                placeholder="РќРµРѕР±СЏР·Р°С‚РµР»СЊРЅРѕ"
               />
             </label>
           </div>
 
           <button type="submit" className="button button--primary">
-            {editingId ? "Сохранить изменения" : "Сохранить запись"}
+            {editingId ? "РЎРѕС…СЂР°РЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ" : "РЎРѕС…СЂР°РЅРёС‚СЊ Р·Р°РїРёСЃСЊ"}
           </button>
         </form>
       )}
@@ -402,14 +390,14 @@ export default function AppointmentsPage() {
           className="search-input"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Поиск по клиенту, мастеру или услуге"
+          placeholder="РџРѕРёСЃРє РїРѕ РєР»РёРµРЅС‚Сѓ, РјР°СЃС‚РµСЂСѓ РёР»Рё СѓСЃР»СѓРіРµ"
         />
 
         <select
           value={statusFilter}
           onChange={(event) => setStatusFilter(event.target.value)}
         >
-          <option value="all">Все статусы</option>
+          <option value="all">Р’СЃРµ СЃС‚Р°С‚СѓСЃС‹</option>
           {STATUS_OPTIONS.map((item) => (
             <option key={item.value} value={item.value}>
               {item.label}
@@ -421,12 +409,12 @@ export default function AppointmentsPage() {
       <div className="appointments-list">
         {loading ? (
           <div className="card empty-state">
-            <h2>Загрузка...</h2>
+            <h2>Р—Р°РіСЂСѓР·РєР°...</h2>
           </div>
         ) : filteredAppointments.length === 0 ? (
           <div className="card empty-state">
-            <h2>Записей пока нет</h2>
-            <p>Создайте первую запись, чтобы начать работу.</p>
+            <h2>Р—Р°РїРёСЃРµР№ РїРѕРєР° РЅРµС‚</h2>
+            <p>РЎРѕР·РґР°Р№С‚Рµ РїРµСЂРІСѓСЋ Р·Р°РїРёСЃСЊ, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ СЂР°Р±РѕС‚Сѓ.</p>
           </div>
         ) : (
           filteredAppointments.map((item) => (
@@ -434,7 +422,7 @@ export default function AppointmentsPage() {
               <div className="appointment-main">
                 <h3>{item.client_name}</h3>
                 <p>
-                  {item.service_name} • {item.master_name}
+                  {item.service_name} вЂў {item.master_name}
                 </p>
                 <p className="appointment-time">
                   {formatInterval(item.starts_at, item.ends_at)}
@@ -460,11 +448,11 @@ export default function AppointmentsPage() {
                 </select>
 
                 <button type="button" onClick={() => handleEdit(item)}>
-                  Изменить
+                  РР·РјРµРЅРёС‚СЊ
                 </button>
 
                 <button type="button" onClick={() => handleDelete(item.id)}>
-                  Удалить
+                  РЈРґР°Р»РёС‚СЊ
                 </button>
               </div>
             </article>

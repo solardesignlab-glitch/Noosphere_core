@@ -418,7 +418,7 @@ Lucide React
 - [x] Tenant-scoped appointments CRUD
 - [x] Master time-conflict validation
 - [x] Appointments smoke test
-- [ ] Automatic `ends_at` from `services.duration_minutes`
+- [x] Automatic `ends_at` from `services.duration_minutes`
 - [x] Services duration UI
 
 ## Agent System — Ready to Start

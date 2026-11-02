@@ -1624,26 +1624,50 @@ app.get("/api/appointments", requireAuth, tenantContext, async (req, res) => {
 
 app.post("/api/appointments", requireAuth, tenantContext, async (req, res) => {
   try {
-    const { client_id, master_id, service_id, starts_at, ends_at, notes } = req.body || {};
+   const { client_id, master_id, service_id, starts_at, notes } = req.body || {};
 
-    if (!client_id || !master_id || !service_id || !starts_at || !ends_at) {
-      return res.status(400).json({
-        message: "Укажите клиента, мастера, услугу, время начала и окончания",
-      });
-    }
+if (!client_id || !master_id || !service_id || !starts_at) {
+  return res.status(400).json({
+    message: "Укажите клиента, мастера, услугу и время начала",
+  });
+}
 
-    const start = new Date(starts_at);
-    const end = new Date(ends_at);
+const start = new Date(starts_at);
 
-    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-      return res.status(400).json({ message: "Некорректное время записи" });
-    }
+if (Number.isNaN(start.getTime())) {
+  return res.status(400).json({ message: "Некорректное время записи" });
+}
 
-    if (end <= start) {
-      return res.status(400).json({
-        message: "Время окончания должно быть позже времени начала",
-      });
-    }
+const [serviceRows] = await pool.query(
+  `SELECT duration_minutes
+   FROM services
+   WHERE id = ? AND organization_id = ?`,
+  [service_id, req.organizationId]
+);
+
+if (serviceRows.length === 0) {
+  return res.status(404).json({ message: "Услуга не найдена" });
+}
+
+const durationMinutes = Number(serviceRows[0].duration_minutes);
+
+if (!Number.isInteger(durationMinutes) || durationMinutes <= 0) {
+  return res.status(400).json({
+    message: "У услуги не указана корректная длительность",
+  });
+}
+
+const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
+
+if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+  return res.status(400).json({ message: "Некорректное время записи" });
+}
+
+if (end <= start) {
+  return res.status(400).json({
+    message: "Время окончания должно быть позже времени начала",
+  });
+}
 
     const [conflicts] = await pool.query(
       `SELECT id
@@ -1695,29 +1719,43 @@ app.post("/api/appointments", requireAuth, tenantContext, async (req, res) => {
 app.put("/api/appointments/:id", requireAuth, tenantContext, async (req, res) => {
   try {
     const { id } = req.params;
-    const { client_id, master_id, service_id, starts_at, ends_at, status, notes } = req.body || {};
+    const { client_id, master_id, service_id, starts_at, status, notes } = req.body || {};
 
-    const [existing] = await pool.query(
-      `SELECT id FROM appointments WHERE id = ? AND organization_id = ?`,
-      [id, req.organizationId]
-    );
+const [existing] = await pool.query(
+  `SELECT id FROM appointments WHERE id = ? AND organization_id = ?`,
+  [id, req.organizationId]
+);
 
-    if (existing.length === 0) {
-      return res.status(404).json({ message: "Запись не найдена" });
-    }
+if (existing.length === 0) {
+  return res.status(404).json({ message: "Запись не найдена" });
+}
 
-    const start = new Date(starts_at);
-    const end = new Date(ends_at);
+const start = new Date(starts_at);
 
-    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-      return res.status(400).json({ message: "Некорректное время записи" });
-    }
+if (Number.isNaN(start.getTime())) {
+  return res.status(400).json({ message: "Некорректное время записи" });
+}
 
-    if (end <= start) {
-      return res.status(400).json({
-        message: "Время окончания должно быть позже времени начала",
-      });
-    }
+const [serviceRows] = await pool.query(
+  `SELECT duration_minutes
+   FROM services
+   WHERE id = ? AND organization_id = ?`,
+  [service_id, req.organizationId]
+);
+
+if (serviceRows.length === 0) {
+  return res.status(404).json({ message: "Услуга не найдена" });
+}
+
+const durationMinutes = Number(serviceRows[0].duration_minutes);
+
+if (!Number.isInteger(durationMinutes) || durationMinutes <= 0) {
+  return res.status(400).json({
+    message: "У услуги не указана корректная длительность",
+  });
+}
+
+const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
 
     const [conflicts] = await pool.query(
       `SELECT id

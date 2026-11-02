@@ -101,7 +101,7 @@ const start = new Date();
 start.setMinutes(0, 0, 0);
 start.setDate(start.getDate() + 1);
 
-const end = new Date(start.getTime() + 60 * 60 * 1000);
+const expectedEnd = new Date(start.getTime() + 60 * 60 * 1000);
 
 const appointment = await api("/api/appointments", {
   method: "POST",
@@ -110,12 +110,16 @@ const appointment = await api("/api/appointments", {
     master_id: masterId,
     service_id: serviceId,
     starts_at: start.toISOString(),
-    ends_at: end.toISOString(),
     notes: "Smoke test"
   })
 });
 
-check("create appointment", appointment.status === 201, JSON.stringify(appointment.data));
+check(
+  "ends_at calculated from duration_minutes",
+  appointment.data?.appointment?.ends_at === expectedEnd.toISOString(),
+  `expected ${expectedEnd.toISOString()}, got ${appointment.data?.appointment?.ends_at}`
+);
+
 const appointmentId = appointment.data?.appointment?.id;
 
 const conflict = await api("/api/appointments", {
@@ -125,7 +129,6 @@ const conflict = await api("/api/appointments", {
     master_id: masterId,
     service_id: serviceId,
     starts_at: new Date(start.getTime() + 30 * 60 * 1000).toISOString(),
-    ends_at: new Date(start.getTime() + 90 * 60 * 1000).toISOString()
   })
 });
 
@@ -138,7 +141,6 @@ const updated = await api(`/api/appointments/${appointmentId}`, {
     master_id: masterId,
     service_id: serviceId,
     starts_at: start.toISOString(),
-    ends_at: end.toISOString(),
     status: "completed",
     notes: "Smoke test completed"
   })
@@ -161,9 +163,3 @@ if (serviceId) await api(`/api/services/${serviceId}`, { method: "DELETE" });
 
 console.log(failures === 0 ? "\nALL TESTS PASSED" : `\n${failures} TEST(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);
-
-// smoke: ends_at = starts_at + duration_minutes
-const durationMinutes = 60;
-const startsAt = new Date("2026-11-02T10:00:00Z");
-const expectedEndsAt = new Date(startsAt.getTime() + durationMinutes * 60 * 1000).toISOString();
-console.log("SMOKE ends_at expected:", expectedEndsAt);
