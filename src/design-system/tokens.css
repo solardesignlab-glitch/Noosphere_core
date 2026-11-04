@@ -1,0 +1,20 @@
+﻿:root {
+  --atom: 16px;
+
+  /* Отступы по атомам */
+  --space-0: calc(var(--atom) * 0); /* 0px */
+  --space-1: calc(var(--atom) * 1); /* 16px --atom: 16px. */
+  --space-2: calc(var(--atom) * 2); /* 32px = 2 атома */
+  --space-3: calc(var(--atom) * 3); /* 48px = 3 атома */
+  --space-4: calc(var(--atom) * 4); /* 64px = 4 атома */
+
+  /* Карточка базового размера */
+  --card-width-base: calc(var(--atom) * 24);  /* 384px = 24 атома */
+  --card-height-base: calc(var(--atom) * 32); /* 512px = 32 атома */
+
+  /* Нейтральная палитра */
+  --color-bg-base: #ffffff;
+  --color-text-base: #1a1a1a;
+  --color-border-base: #e0e0e0;
+  --color-accent-base: #2563eb;
+}

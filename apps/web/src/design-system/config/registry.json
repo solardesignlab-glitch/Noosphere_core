@@ -1,0 +1,28 @@
+﻿{
+  "version": "1.0.0",
+  "unit": "atom",
+  "base": 1,
+  "scale": 16,
+  "origin": { "letter": "A", "value": 0 },
+  "axes": {
+    "geometry": { "unit": "atom", "step": 16 },
+    "data": { "prefix": "U", "start": 1, "label": "owner" },
+    "navigation": { "steps": ["A", "B", "C", "D", "E"], "max": 5 }
+  },
+  "owner": { "id": "U1", "label": "Owner", "weight": 1 },
+  "roles": [
+    { "id": "U1", "label": "Owner", "screens": ["D01", "D02", "D03", "D04", "D05"] },
+    { "id": "U2", "label": "Analyst", "screens": ["D06"] }
+  ],
+  "screens": [
+    { "id": "D01", "path": "/", "layer": "L1" },
+    { "id": "D02", "path": "/catalog", "layer": "L1" },
+    { "id": "D03", "path": "/catalog/:id", "layer": "L2" },
+    { "id": "D04", "path": "/tasks", "layer": "L1" },
+    { "id": "D05", "path": "/settings", "layer": "L1" },
+    { "id": "D06", "path": "/analytics", "layer": "L1" }
+  ],
+  "modules": [
+    { "name": "Analytics", "screen": "D06", "owner": "U2", "component": "AnalyticsCard.jsx", "coordX": "col-6" }
+  ]
+}
