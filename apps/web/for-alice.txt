@@ -1,0 +1,543 @@
+﻿
+import { useState } from "react";
+
+const API_BASE = "http://localhost:8090";
+
+const KPI = [
+  {
+    id: "appointments",
+    label: "Р—Р°РїРёСЃРµР№ СЃРµРіРѕРґРЅСЏ",
+    value: "12",
+    hint: "3 РїРѕРґС‚РІРµСЂР¶РґРµРЅС‹",
+    trend: "+2 Рє РІС‡РµСЂР°",
+    accent: "blue"
+  },
+  {
+    id: "pending",
+    label: "РћР¶РёРґР°СЋС‚ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ",
+    value: "4",
+    hint: "РўСЂРµР±СѓСЋС‚ РґРµР№СЃС‚РІРёСЏ",
+    trend: "Р’РЅРёРјР°РЅРёРµ",
+    accent: "yellow"
+  },
+  {
+    id: "revenue",
+    label: "Р’С‹СЂСѓС‡РєР° Р·Р° РґРµРЅСЊ",
+    value: "38 500 в‚Ѕ",
+    hint: "РџРѕ Р·Р°РІРµСЂС€С‘РЅРЅС‹Рј Р·Р°РїРёСЃСЏРј",
+    trend: "+12%",
+    accent: "green"
+  },
+  {
+    id: "load",
+    label: "Р—Р°РіСЂСѓР·РєР° РјР°СЃС‚РµСЂРѕРІ",
+    value: "78%",
+    hint: "6 РёР· 8 РјР°СЃС‚РµСЂРѕРІ Р·Р°РЅСЏС‚С‹",
+    trend: "Р’С‹СЃРѕРєР°СЏ",
+    accent: "purple"
+  }
+];
+
+const SCHEDULE = [
+  {
+    id: 1,
+    time: "10:00",
+    client: "РђРЅРЅР° РЎРјРёСЂРЅРѕРІР°",
+    master: "РњР°СЂРёСЏ",
+    service: "РЎС‚СЂРёР¶РєР° + СѓРєР»Р°РґРєР°",
+    status: "confirmed"
+  },
+  {
+    id: 2,
+    time: "11:30",
+    client: "РРіРѕСЂСЊ РџРµС‚СЂРѕРІ",
+    master: "РђР»РµРєСЃРµР№",
+    service: "РњСѓР¶СЃРєР°СЏ СЃС‚СЂРёР¶РєР°",
+    status: "pending"
+  },
+  {
+    id: 3,
+    time: "13:00",
+    client: "Р•Р»РµРЅР° РљРѕР·Р»РѕРІР°",
+    master: "РњР°СЂРёСЏ",
+    service: "РћРєСЂР°С€РёРІР°РЅРёРµ",
+    status: "confirmed"
+  },
+  {
+    id: 4,
+    time: "15:00",
+    client: "Р”РјРёС‚СЂРёР№ Р’РѕР»РєРѕРІ",
+    master: "РђР»РµРєСЃРµР№",
+    service: "Р‘РѕСЂРѕРґР° + СЃС‚СЂРёР¶РєР°",
+    status: "completed"
+  }
+];
+
+const ATTENTION = [
+  {
+    id: 1,
+    title: "4 Р·Р°РїРёСЃРё РѕР¶РёРґР°СЋС‚ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ",
+    description: "РћС‚РїСЂР°РІСЊС‚Рµ РЅР°РїРѕРјРёРЅР°РЅРёСЏ РєР»РёРµРЅС‚Р°Рј",
+    action: "РќР°РїРѕРјРЅРёС‚СЊ"
+  },
+  {
+    id: 2,
+    title: "РЎРІРѕР±РѕРґРЅРѕРµ РѕРєРЅРѕ Сѓ РјР°СЃС‚РµСЂР° РњР°СЂРёРё",
+    description: "14:30вЂ“15:30",
+    action: "РЎРѕР·РґР°С‚СЊ Р·Р°РїРёСЃСЊ"
+  },
+  {
+    id: 3,
+    title: "РљР»РёРµРЅС‚ РРіРѕСЂСЊ РџРµС‚СЂРѕРІ РЅРµ РїРѕРґС‚РІРµСЂРґРёР» Р·Р°РїРёСЃСЊ",
+    description: "Р—Р°РїРёСЃСЊ СЃРµРіРѕРґРЅСЏ РІ 11:30",
+    action: "РћС‚РєСЂС‹С‚СЊ"
+  }
+];
+
+const AI_QUESTIONS = [
+  "РљР°РєРёРµ Р·Р°РїРёСЃРё СЃРµРіРѕРґРЅСЏ С‚СЂРµР±СѓСЋС‚ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ?",
+  "Р•СЃС‚СЊ Р»Рё СЃРІРѕР±РѕРґРЅС‹Рµ РѕРєРЅР° Сѓ РјР°СЃС‚РµСЂРѕРІ?",
+  "РџРѕРєР°Р¶Рё Р±Р»РёР¶Р°Р№С€РёРµ Р·Р°РїРёСЃРё."
+];
+
+const STATUS_LABELS = {
+  pending: "РћР¶РёРґР°РµС‚",
+  confirmed: "РџРѕРґС‚РІРµСЂР¶РґРµРЅР°",
+  completed: "Р—Р°РІРµСЂС€РµРЅР°",
+  cancelled: "РћС‚РјРµРЅРµРЅР°"
+};
+
+export default function DashboardPage() {
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [aiAnswer, setAiAnswer] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+
+  const askAi = async (question) => {
+    setAiLoading(true);
+    setAiError("");
+    setAiAnswer("");
+
+    try {
+      const response = await fetch(`${API_BASE}/api/ai/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: question,
+          history: []
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "AI РЅРµ РѕС‚РІРµС‚РёР»");
+      }
+
+      setAiAnswer(data.reply);
+    } catch (error) {
+      setAiError(error.message);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  return (
+    <section className="page">
+      <header className="page__header">
+        <div>
+          <h1>Р”РѕР±СЂС‹Р№ РґРµРЅСЊ</h1>
+          <p>РћР±Р·РѕСЂ СЃР°Р»РѕРЅР° РЅР° СЃРµРіРѕРґРЅСЏ, 30 РѕРєС‚СЏР±СЂСЏ</p>
+        </div>
+
+        <button className="button button--primary">+ РќРѕРІР°СЏ Р·Р°РїРёСЃСЊ</button>
+      </header>
+
+      <div className="kpi-grid">
+        {KPI.map((item) => (
+          <article key={item.id} className={`kpi-card kpi-card--${item.accent}`}>
+            <div className="kpi-card__top">
+              <span>{item.label}</span>
+              <span className="kpi-card__trend">{item.trend}</span>
+            </div>
+            <div className="kpi-card__value">{item.value}</div>
+            <div className="kpi-card__hint">{item.hint}</div>
+          </article>
+        ))}
+      </div>
+
+      <div className="dashboard-grid">
+        <section className="card schedule">
+          <div className="card__header">
+            <div>
+              <h2>Р Р°СЃРїРёСЃР°РЅРёРµ РЅР° СЃРµРіРѕРґРЅСЏ</h2>
+              <p>Р‘Р»РёР¶Р°Р№С€РёРµ Р·Р°РїРёСЃРё Рё СЃС‚Р°С‚СѓСЃС‹</p>
+            </div>
+            <button className="button button--ghost">Р’СЃРµ Р·Р°РїРёСЃРё</button>
+          </div>
+
+          <div className="schedule__list">
+            {SCHEDULE.map((item) => (
+              <button
+                key={item.id}
+                className={
+                  "schedule__row" +
+                  (selectedAppointment === item.id
+                    ? " schedule__row--active"
+                    : "")
+                }
+                onClick={() =>
+                  setSelectedAppointment(
+                    selectedAppointment === item.id ? null : item.id
+                  )
+                }
+              >
+                <div className="schedule__time">{item.time}</div>
+
+                <div className="schedule__info">
+                  <strong>{item.client}</strong>
+                  <span>
+                    {item.master} В· {item.service}
+                  </span>
+                </div>
+
+                <span className={`status status--${item.status}`}>
+                  {STATUS_LABELS[item.status]}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <div className="dashboard-side">
+          <section className="card">
+            <div className="card__header">
+              <div>
+                <h2>РўСЂРµР±СѓСЋС‚ РІРЅРёРјР°РЅРёСЏ</h2>
+                <p>3 Р·Р°РґР°С‡Рё</p>
+              </div>
+            </div>
+
+            <div className="attention__list">
+              {ATTENTION.map((item) => (
+                <div key={item.id} className="attention__item">
+                  <div>
+                    <strong>{item.title}</strong>
+                    <span>{item.description}</span>
+                  </div>
+                  <button className="button button--small">{item.action}</button>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="card ai-panel">
+            <div className="card__header">
+              <div>
+                <h2>AI-РїРѕРґСЃРєР°Р·РєРё</h2>
+                <p>РњРѕРґРµР»СЊ: qwen2.5:7b</p>
+              </div>
+              <span className="status status--confirmed">РђРєС‚РёРІРЅР°</span>
+            </div>
+
+            <div className="ai-panel__list">
+              {AI_QUESTIONS.map((question) => (
+                <button
+                  key={question}
+                  className="ai-panel__question"
+                  onClick={() => askAi(question)}
+                  disabled={aiLoading}
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+
+            {aiLoading && <div className="ai-answer">AI РґСѓРјР°РµС‚...</div>}
+
+            {aiError && <div className="ai-answer ai-answer--error">{aiError}</div>}
+
+            {aiAnswer && <div className="ai-answer">{aiAnswer}</div>}
+          </section>
+        </div>
+      </div>
+    </section>
+  );
+}
+import { useState } from "react";
+import "./App.css";
+
+import DashboardPage from "./pages/DashboardPage";
+import AiModelsPage from "./pages/AiModelsPage";
+import SessionsPage from "./pages/SessionsPage";
+import AiAssistantPage from "./pages/AiAssistantPage";
+import AgentPanel from "./components/AgentPanel";
+import LoginPage from "./pages/LoginPage";
+import PartsPage from "./pages/PartsPage";
+
+import { getStoredUser, logout } from "./api/backend";
+
+const OWNER_NAV_ITEMS = [
+  { id: "dashboard", label: "Дашборд", icon: "📊" },
+  { id: "appointments", label: "Записи", icon: "📅" },
+  { id: "clients", label: "Клиенты", icon: "👥" },
+  { id: "masters", label: "Мастера", icon: "✂️" },
+  { id: "services", label: "Услуги", icon: "💼" },
+  { id: "parts", label: "Запчасти", icon: "⚙️" },
+  { id: "ai", label: "AI-помощник", icon: "🤖" },
+  { id: "settings", label: "Настройки", icon: "⚙️" }
+];
+
+const DEVELOPER_NAV_ITEMS = [
+  { id: "ai", label: "AI-помощник", icon: "🤖" },
+  { id: "settings", label: "AI-модели", icon: "⚙️" }
+];
+
+const CLIENT_NAV_ITEMS = [
+  { id: "client-home", label: "Мой кабинет", icon: "🏠" },
+  { id: "ai", label: "AI-помощник", icon: "🤖" }
+];
+
+const PAGE_TITLES = {
+  clients: "Клиенты",
+  masters: "Мастера",
+  services: "Услуги"
+};
+
+export default function App() {
+  const [user, setUser] = useState(getStoredUser());
+  const [activePage, setActivePage] = useState("dashboard");
+  const [isAgentOpen, setIsAgentOpen] = useState(false);
+
+  if (!user) {
+    return (
+      <LoginPage
+        onLogin={(loggedInUser) => {
+          setUser(loggedInUser);
+          setActivePage(
+            loggedInUser.role === "client" ? "client-home" : "dashboard"
+          );
+        }}
+      />
+    );
+  }
+
+  const role = user.role;
+
+  const navItems =
+    role === "owner"
+      ? OWNER_NAV_ITEMS
+      : role === "developer"
+        ? DEVELOPER_NAV_ITEMS
+        : CLIENT_NAV_ITEMS;
+
+  const visiblePage = navItems.some((item) => item.id === activePage)
+    ? activePage
+    : navItems[0].id;
+
+  function handleLogout() {
+    logout();
+    setUser(null);
+    setActivePage("dashboard");
+  }
+
+  return (
+    <div className="app">
+      <aside className="sidebar">
+        <div className="sidebar__brand">
+          <div className="sidebar__logo">A</div>
+
+          <div>
+            <div className="sidebar__title">Атмосфера</div>
+            <div className="sidebar__subtitle">
+              {role === "owner"
+                ? "CRM салона"
+                : role === "developer"
+                  ? "Среда разработки"
+                  : "Клиентский кабинет"}
+            </div>
+          </div>
+        </div>
+
+        <nav className="sidebar__nav">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={
+                "sidebar__item" +
+                (visiblePage === item.id ? " sidebar__item--active" : "")
+              }
+              onClick={() => setActivePage(item.id)}
+            >
+              <span>{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="sidebar__footer">
+          <div className="sidebar__user">
+            <div className="sidebar__avatar">
+              {user.email.slice(0, 1).toUpperCase()}
+            </div>
+
+            <div>
+              <div className="sidebar__user-name">{user.email}</div>
+              <div className="sidebar__user-role">
+                {role === "owner"
+                  ? "Владелец"
+                  : role === "developer"
+                    ? "Разработчик"
+                    : "Клиент"}
+              </div>
+            </div>
+          </div>
+
+          <button
+            className="sidebar__logout"
+            type="button"
+            onClick={handleLogout}
+          >
+            Выйти
+          </button>
+        </div>
+      </aside>
+
+      <main className="main">
+        {visiblePage === "dashboard" && (
+          <DashboardPage onOpenAssistant={() => setIsAgentOpen(true)} />
+        )}
+
+        {visiblePage === "appointments" && (
+          <SessionsPage onOpenAssistant={() => setIsAgentOpen(true)} />
+        )}
+
+        {visiblePage === "parts" && <PartsPage />}
+
+        {visiblePage === "ai" && <AiAssistantPage />}
+
+        {visiblePage === "settings" && <SettingsPage />}
+
+        {visiblePage === "client-home" && (
+          <section className="page">
+            <header className="page__header">
+              <div>
+                <h1>Мой кабинет</h1>
+                <p>Здесь будут ваши записи, услуги и уведомления.</p>
+              </div>
+
+              <button
+                className="button button--primary"
+                type="button"
+                onClick={() => setIsAgentOpen(true)}
+              >
+                Спросить AI
+              </button>
+            </header>
+
+            <div className="empty-state">
+              <div className="empty-state__icon">🏠</div>
+              <h2>Клиентский портал</h2>
+              <p>
+                В следующем шаге подключим ваши записи и ограниченного
+                AI-помощника.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {["clients", "masters", "services"].includes(visiblePage) && (
+          <section className="page">
+            <header className="page__header">
+              <div>
+                <h1>{PAGE_TITLES[visiblePage]}</h1>
+                <p>Раздел будет подключён после MVP-дашборда.</p>
+              </div>
+
+              <button
+                className="button button--primary"
+                type="button"
+                onClick={() => setIsAgentOpen(true)}
+              >
+                Спросить AI
+              </button>
+            </header>
+
+            <div className="empty-state">
+              <div className="empty-state__icon">🚧</div>
+              <h2>Раздел в разработке</h2>
+              <p>Сначала завершим дашборд и страницу записей.</p>
+            </div>
+          </section>
+        )}
+      </main>
+
+      {isAgentOpen && <AgentPanel onClose={() => setIsAgentOpen(false)} />}
+    </div>
+  );
+}
+
+function SettingsPage() {
+  const [activeTab, setActiveTab] = useState("ai-models");
+
+  const tabs = [
+    { id: "profile", label: "Профиль салона" },
+    { id: "users", label: "Пользователи" },
+    { id: "ai-models", label: "AI-модели" },
+    { id: "integrations", label: "Интеграции" }
+  ];
+
+  return (
+    <section className="page">
+      <header className="page__header">
+        <div>
+          <h1>Настройки</h1>
+          <p>Управление салоном, пользователями и AI-моделями</p>
+        </div>
+      </header>
+
+      <div className="tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            className={"tab" + (activeTab === tab.id ? " tab--active" : "")}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "ai-models" ? (
+        <AiModelsPage />
+      ) : (
+        <div className="empty-state">
+          <div className="empty-state__icon">⚙️</div>
+          <h2>Раздел в разработке</h2>
+          <p>Здесь появятся настройки выбранного раздела.</p>
+        </div>
+      )}
+    </section>
+  );
+}
+import React from 'react';
+
+const AnalyticsCard = () => {
+  return (
+    <div
+      data-coord-x="col-6"
+      data-coord-y="U2"
+      data-coord-z="D06/L1"
+      className="card atom-4"
+    >
+      <h3>Analytics</h3>
+      <p>Новый модуль. Координаты зафиксированы.</p>
+    </div>
+  );
+};
+
+export default AnalyticsCard;
