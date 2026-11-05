@@ -6,7 +6,7 @@ $report = Join-Path $auditDir "PROJECT-AUDIT.md"
 
 New-Item -ItemType Directory -Force -Path $auditDir | Out-Null
 
-$exclude = '\\node_modules\\|\\.venv\\|\\venv\\|__pycache__|\\.git\\|\\dist\\|\\build\\'
+$exclude = '\\node_modules\\|\\.venv\\|\\venv\\|__pycache__|\\.git\\|\\dist\\|\\build\\|\\docs\\audit\\'
 
 function Add-Section($title, $content) {
     Add-Content -Path $report -Value "`n## $title`n" -Encoding utf8
