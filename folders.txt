@@ -1,0 +1,30 @@
+﻿=== frontend\frontend ===
+
+Name F
+     u
+     l
+     l
+     N
+     a
+     m
+     e
+---- -
+.env C
+
+
+
+=== apps\web\frontend ===
+
+Name F
+     u
+     l
+     l
+     N
+     a
+     m
+     e
+---- -
+.env C
+
+
+

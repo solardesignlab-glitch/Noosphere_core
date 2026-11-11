@@ -1,0 +1,83 @@
+﻿
+=== 1. DOCKER ===
+
+=== 2. ПОРТЫ ===
+Порт 4000 : свободен
+Порт 8090 : свободен
+Порт 5173 : свободен
+Порт 11434 : СЛУШАЕТ (PID 19900)
+Порт 8081 : свободен
+Порт 3306 : СЛУШАЕТ (PID 4452)
+
+=== 3. МОДУЛИ apps/api ===
+ai: 2 файлов, 0 КБ
+auth: 0 файлов, 0 КБ
+catalog: 0 файлов, 0 КБ
+customers: 0 файлов, 0 КБ
+events: 0 файлов, 0 КБ
+finance: 0 файлов, 0 КБ
+identity: 0 файлов, 0 КБ
+integrations: 0 файлов, 0 КБ
+knowledge: 0 файлов, 0 КБ
+orders: 0 файлов, 0 КБ
+organizations: 0 файлов, 0 КБ
+owner: 0 файлов, 0 КБ
+rbac: 1 файлов, 0 КБ
+resources: 0 файлов, 0 КБ
+telegram: 0 файлов, 0 КБ
+tenancy: 3 файлов, 0.8 КБ
+users: 0 файлов, 0 КБ
+workflows: 0 файлов, 0 КБ
+
+=== 4. ПРОТОКОЛЫ ===
+Всего: 17
+00_README.md, 01_laws.md, 02_prohibitions.md, 03_rules.md, 04_conditions.md, 05_protocols.md, 06_change_process.md, 07_decision_log.md, 08_error_log.md, 09_entity_registry.md, 10_agent_contract.md, 11_agent_policy.md, 12_agent_handoff.md, 13_data_sources.md, 14_truth_sources.md, 15_input_security.md, scope_registry.md
+
+=== 5. КЛЮЧЕВЫЕ ФАЙЛЫ ===
+apps\web : ЕСТЬ
+frontend : ЕСТЬ
+services\telegram : ЕСТЬ
+backups\overlapcheck-20261030-022836\OverlapCheck.php : ЕСТЬ
+create-admin.cjs : НЕТ
+apps\web\fix-dashboard.ps1 : НЕТ
+fix-dashboard.ps1 : НЕТ
+
+=== 6. НУЛЕВЫЕ ФАЙЛЫ (первые 20) ===
+C:\Projects\ucp-mvp\apps\api\src\modules\ai\aiActionLogModel.js
+C:\Projects\ucp-mvp\apps\api\src\modules\ai\aiOrchestrator.js
+C:\Projects\ucp-mvp\apps\api\src\modules\rbac\roles.js
+C:\Projects\ucp-mvp\apps\api\src\modules\tenancy\organizationModel.js
+C:\Projects\ucp-mvp\apps\api\src\modules\tenancy\organizationRoutes.js
+C:\Projects\ucp-mvp\apps\web\design-system\components\__utils.css
+C:\Projects\ucp-mvp\apps\web\design-system\styles\base.css
+C:\Projects\ucp-mvp\apps\web\design-system\styles\layout.css
+C:\Projects\ucp-mvp\apps\web\design-system\styles\theme.css
+C:\Projects\ucp-mvp\apps\web\design-system\tokens\README.md
+C:\Projects\ucp-mvp\apps\web\design-system\tokens\tokens.css
+C:\Projects\ucp-mvp\apps\web\node_modules\eslint-import-resolver-node\node_modules\resolve\npm-debug.log.357d1f5f60a5f00f2e0c325cef16bbd4
+C:\Projects\ucp-mvp\apps\web\node_modules\eslint-import-resolver-node\node_modules\resolve\test\dotdot\index.js
+C:\Projects\ucp-mvp\apps\web\node_modules\eslint-import-resolver-node\node_modules\resolve\test\dotdot\abc\index.js
+C:\Projects\ucp-mvp\apps\web\node_modules\eslint-import-resolver-node\node_modules\resolve\test\module_dir\xmodules\aaa\index.js
+C:\Projects\ucp-mvp\apps\web\node_modules\eslint-import-resolver-node\node_modules\resolve\test\module_dir\ymodules\aaa\index.js
+C:\Projects\ucp-mvp\apps\web\node_modules\eslint-import-resolver-node\node_modules\resolve\test\module_dir\zmodules\bbb\main.js
+C:\Projects\ucp-mvp\apps\web\node_modules\eslint-import-resolver-node\node_modules\resolve\test\node_path\x\aaa\index.js
+C:\Projects\ucp-mvp\apps\web\node_modules\eslint-import-resolver-node\node_modules\resolve\test\node_path\x\ccc\index.js
+C:\Projects\ucp-mvp\apps\web\node_modules\eslint-import-resolver-node\node_modules\resolve\test\node_path\y\bbb\index.js
+
+=== 7. ТЕРМИНОЛОГИЧЕСКИЙ СКАН (первые 30 вхождений) ===
+
+=== 8. .ENV (только пути и размеры, содержимое не читаем) ===
+C:\Projects\ucp-mvp\.env | 444 байт | 10/31/2026 10:46:10
+C:\Projects\ucp-mvp\apps\api\.env | 552 байт | 10/31/2026 11:04:40
+C:\Projects\ucp-mvp\apps\web\.env | 1026 байт | 11/05/2026 13:06:14
+C:\Projects\ucp-mvp\apps\web\frontend\.env | 52 байт | 10/30/2026 04:14:15
+C:\Projects\ucp-mvp\backend\.env | 551 байт | 10/31/2026 10:46:10
+C:\Projects\ucp-mvp\frontend\.env | 53 байт | 10/30/2026 23:15:24
+C:\Projects\ucp-mvp\frontend\frontend\.env | 52 байт | 10/30/2026 04:14:15
+C:\Projects\ucp-mvp\services\telegram\.env | 119 байт | 10/30/2026 18:37:05
+
+=== 9. OLLAMA ===
+Статус: 200
+Модели: moondream:latest, qwen2.5:7b, qwen2.5-coder:7b
+
+=== ГОТОВО ===

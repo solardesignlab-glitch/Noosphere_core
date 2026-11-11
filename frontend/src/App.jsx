@@ -9,6 +9,7 @@ import AgentPanel from "./components/AgentPanel";
 import LoginPage from "./pages/LoginPage";
 
 import { getStoredUser, logout } from "./api/backend";
+import { StatusCheck } from "./components/StatusCheck";
 
 const OWNER_NAV_ITEMS = [
   { id: "dashboard", label: "Дашборд", icon: "📊" },
@@ -17,23 +18,23 @@ const OWNER_NAV_ITEMS = [
   { id: "masters", label: "Мастера", icon: "✂️" },
   { id: "services", label: "Услуги", icon: "💼" },
   { id: "ai", label: "AI-помощник", icon: "🤖" },
-  { id: "settings", label: "Настройки", icon: "⚙️" }
+  { id: "settings", label: "Настройки", icon: "⚙️" },
 ];
 
 const DEVELOPER_NAV_ITEMS = [
   { id: "ai", label: "AI-помощник", icon: "🤖" },
-  { id: "settings", label: "AI-модели", icon: "⚙️" }
+  { id: "settings", label: "AI-модели", icon: "⚙️" },
 ];
 
 const CLIENT_NAV_ITEMS = [
   { id: "client-home", label: "Мой кабинет", icon: "🏠" },
-  { id: "ai", label: "AI-помощник", icon: "🤖" }
+  { id: "ai", label: "AI-помощник", icon: "🤖" },
 ];
 
 const PAGE_TITLES = {
   clients: "Клиенты",
   masters: "Мастера",
-  services: "Услуги"
+  services: "Услуги",
 };
 
 export default function App() {
@@ -47,7 +48,7 @@ export default function App() {
         onLogin={(loggedInUser) => {
           setUser(loggedInUser);
           setActivePage(
-            loggedInUser.role === "client" ? "client-home" : "dashboard"
+            loggedInUser.role === "client" ? "client-home" : "dashboard",
           );
         }}
       />
@@ -137,6 +138,7 @@ export default function App() {
       </aside>
 
       <main className="main">
+        <StatusCheck />
         {visiblePage === "dashboard" && (
           <DashboardPage onOpenAssistant={() => setIsAgentOpen(true)} />
         )}
@@ -215,7 +217,7 @@ function SettingsPage() {
     { id: "profile", label: "Профиль салона" },
     { id: "users", label: "Пользователи" },
     { id: "ai-models", label: "AI-модели" },
-    { id: "integrations", label: "Интеграции" }
+    { id: "integrations", label: "Интеграции" },
   ];
 
   return (

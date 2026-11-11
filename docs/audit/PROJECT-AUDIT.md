@@ -1,18 +1,19 @@
 ﻿# UCP MVP Project Audit
-Date: 11/05/2026 14:14:13
+
+Date: 11/05/2026 14:59:54
 
 ## Docker containers
 
-NAMES          IMAGE                    STATUS                 PORTS
-ucp_telegram   ucp-mvp-telegram         Up 2 hours             0.0.0.0:8090->8000/tcp, [::]:8090->8000/tcp
-ucp_espocrm    espocrm/espocrm:latest   Up 2 hours (healthy)   0.0.0.0:8081->80/tcp, [::]:8081->80/tcp
-ucp_redis      redis:7-alpine           Up 2 hours             6379/tcp
-ucp_database   mariadb:10.11            Up 2 hours (healthy)   0.0.0.0:3306->3306/tcp, [::]:3306->3306/tcp
-
+NAMES IMAGE STATUS PORTS
+ucp_telegram ucp-mvp-telegram Up 3 hours 0.0.0.0:8090->8000/tcp, [::]:8090->8000/tcp
+ucp_espocrm espocrm/espocrm:latest Up 3 hours (healthy) 0.0.0.0:8081->80/tcp, [::]:8081->80/tcp
+ucp_redis redis:7-alpine Up 3 hours 6379/tcp
+ucp_database mariadb:10.11 Up 3 hours (healthy) 0.0.0.0:3306->3306/tcp, [::]:3306->3306/tcp
 
 ## Project structure
 
 ### backend\src
+
 C:\Projects\ucp-mvp\backend\src\middleware\errors.js
 C:\Projects\ucp-mvp\backend\src\modules\ai\aiActionLogModel.js
 C:\Projects\ucp-mvp\backend\src\modules\ai\aiOrchestrator.js
@@ -22,23 +23,27 @@ C:\Projects\ucp-mvp\backend\src\modules\tenancy\organizationModel.js
 C:\Projects\ucp-mvp\backend\src\modules\tenancy\organizationRoutes.js
 C:\Projects\ucp-mvp\backend\src\routes\health.js
 C:\Projects\ucp-mvp\backend\src\shared\middleware\tenantContext.js
+
 ### services
+
 C:\Projects\ucp-mvp\services\telegram\.env
 C:\Projects\ucp-mvp\services\telegram\Dockerfile
 C:\Projects\ucp-mvp\services\telegram\requirements.txt
 C:\Projects\ucp-mvp\services\telegram\app\config.py
 C:\Projects\ucp-mvp\services\telegram\app\main.py
-C:\Projects\ucp-mvp\services\telegram\app\__init__.py
+C:\Projects\ucp-mvp\services\telegram\app\_\_init**.py
 C:\Projects\ucp-mvp\services\telegram\app\routers\ai.py
 C:\Projects\ucp-mvp\services\telegram\app\routers\appointments.py
 C:\Projects\ucp-mvp\services\telegram\app\routers\telegram.py
-C:\Projects\ucp-mvp\services\telegram\app\routers\__init__.py
+C:\Projects\ucp-mvp\services\telegram\app\routers\_\_init**.py
 C:\Projects\ucp-mvp\services\telegram\app\services\appointment_service.py
 C:\Projects\ucp-mvp\services\telegram\app\services\espo_service.py
 C:\Projects\ucp-mvp\services\telegram\app\services\telegram_api.py
 C:\Projects\ucp-mvp\services\telegram\app\services\telegram_service.py
-C:\Projects\ucp-mvp\services\telegram\app\services\__init__.py
+C:\Projects\ucp-mvp\services\telegram\app\services\_\_init\_\_.py
+
 ### frontend\src
+
 C:\Projects\ucp-mvp\frontend\src\App.css
 C:\Projects\ucp-mvp\frontend\src\App.jsx
 C:\Projects\ucp-mvp\frontend\src\index.css
@@ -65,11 +70,15 @@ C:\Projects\ucp-mvp\frontend\src\pages\DashboardPage.jsx
 C:\Projects\ucp-mvp\frontend\src\pages\LoginPage.jsx
 C:\Projects\ucp-mvp\frontend\src\pages\MediaPage.jsx
 C:\Projects\ucp-mvp\frontend\src\pages\SessionsPage.jsx
+
 ### scripts
+
 C:\Projects\ucp-mvp\scripts\audit-ucp.ps1
 C:\Projects\ucp-mvp\scripts\check-json-local.ps1
 C:\Projects\ucp-mvp\scripts\set_telegram_webhook.sh
+
 ### docs
+
 C:\Projects\ucp-mvp\docs\atmosfera_development_guide.md
 C:\Projects\ucp-mvp\docs\atmosfera_mvp_dialog.md
 C:\Projects\ucp-mvp\docs\ATMOSFERA_UX_CONCEPT.md
@@ -78,8 +87,6 @@ C:\Projects\ucp-mvp\docs\qwen_audit_review_draft.txt
 C:\Projects\ucp-mvp\docs\ROADMAP.backup-2026-11-01.md
 C:\Projects\ucp-mvp\docs\ROADMAP.md
 C:\Projects\ucp-mvp\docs\vision_master_document.md
-C:\Projects\ucp-mvp\docs\audit\PROJECT-AUDIT.baseline-2026-11-05-1352.md
-C:\Projects\ucp-mvp\docs\audit\PROJECT-AUDIT.md
 C:\Projects\ucp-mvp\docs\product\001_create_atmosfera_core.sql
 C:\Projects\ucp-mvp\docs\protocols\00_README.md
 C:\Projects\ucp-mvp\docs\protocols\01_laws.md
@@ -98,8 +105,8 @@ C:\Projects\ucp-mvp\docs\protocols\13_data_sources.md
 C:\Projects\ucp-mvp\docs\protocols\14_truth_sources.md
 C:\Projects\ucp-mvp\docs\protocols\15_input_security.md
 C:\Projects\ucp-mvp\docs\protocols\scope_registry.md
-### db
 
+### db
 
 ## PowerShell scripts
 
@@ -107,7 +114,6 @@ get-upcoming-sessions.ps1
 start-all.ps1
 scripts\audit-ucp.ps1
 scripts\check-json-local.ps1
-
 
 ## Backend API routes
 
@@ -122,7 +128,6 @@ C:\Projects\ucp-mvp\services\telegram\app\routers\appointments.py:44: @router.po
 C:\Projects\ucp-mvp\services\telegram\app\routers\appointments.py:54: @router.get("/today", dependencies=[Depends(require_service_token)])
 C:\Projects\ucp-mvp\services\telegram\app\routers\telegram.py:8: @router.post("/webhook/{secret}")
 C:\Projects\ucp-mvp\services\telegram\app\main.py:18: @app.get("/health")
-
 
 ## Frontend API calls
 
@@ -158,19 +163,16 @@ C:\Projects\ucp-mvp\frontend\src\pages\MediaPage.jsx:52: const response = await 
 C:\Projects\ucp-mvp\frontend\src\pages\SessionsPage.jsx:9: } from "../api/espocrm";
 C:\Projects\ucp-mvp\frontend\src\App.jsx:11: import { getStoredUser, logout } from "./api/backend";
 
-
 ## API checks
 
 http://localhost:8090/docs => 200
 http://localhost:8090/api/ai/chat => 405
 http://localhost:8090/api/appointments => 404
 http://localhost:8081/api/v1/Appointments => 401
-http://localhost:5173 => ERROR
-
+http://localhost:5173 => 200
 
 ## MariaDB databases
 
 Database
 information_schema
 ucp
-
