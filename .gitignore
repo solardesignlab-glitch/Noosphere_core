@@ -84,3 +84,15 @@ update-part.json
 test-server.mjsinventory_full.txt
 inventory_full.txt
 test-server.mjs
+
+espocrm-dump.sql
+espocrm-rebuild.log
+audit_prompt.txt
+deep_audit_prompt.txt
+audit_review_prompt.txt
+project_context.txt
+protocols_all.txt
+context_audit.txt
+inventory_full.txt
+*.log
+
