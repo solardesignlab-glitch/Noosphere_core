@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+﻿import { useRef, useState } from "react";
 
 const ALLOWED_TYPES = [
   "image/png",
@@ -51,7 +51,7 @@ export default function FileDropzone({ onUploaded }) {
         formData.append("image", file);
 
         const response = await fetch(
-          "http://localhost:4000/api/media",
+          "/api/media",
           {
             method: "POST",
             body: formData

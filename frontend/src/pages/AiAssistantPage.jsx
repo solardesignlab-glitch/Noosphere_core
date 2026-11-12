@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 
-const API_BASE = "http://localhost:4000";
+const API_BASE = "";
 
 const QUICK_QUESTIONS = [
   "Какие записи сегодня требуют подтверждения?",

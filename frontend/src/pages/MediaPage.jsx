@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import FileDropzone from "../components/FileDropzone";
 
-const API_URL = "http://localhost:4000";
+const API_URL = "";
 
 export default function MediaPage() {
   const fileInputRef = useRef(null);

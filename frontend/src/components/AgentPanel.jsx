@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import "../App.css";
 
-const API_BASE = "http://localhost:4000";
+const API_BASE = "";
 
 const AGENTS = [
   {
