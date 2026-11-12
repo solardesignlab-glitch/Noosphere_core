@@ -1,51 +1,44 @@
-﻿import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+﻿import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { resolve } from "path";
 
 export default defineConfig({
   plugins: [
     react({
       include: /\.(js|jsx|ts|tsx)$/,
       babel: {
-        babelHelpers: 'bundled'
-      }
-    })
+        babelHelpers: "bundled",
+      },
+    }),
   ],
   resolve: {
     alias: {
-      '@': resolve(import.meta.dirname, './src')
-    }
+      "@": resolve(import.meta.dirname, "./src"),
+    },
   },
   server: {
     port: 5173,
     host: true,
     strictPort: true,
     proxy: {
-      '/api/v1': {
-        target: 'http://localhost:8081',
-        changeOrigin: true
+      "/api": {
+        target: "http://localhost:4000",
+        changeOrigin: true,
       },
-      '/api': {
-        target: 'http://localhost:8090',
-        changeOrigin: true
-      }
-    }
+    },
   },
   build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
+    outDir: "dist",
+    assetsDir: "assets",
     rollupOptions: {
       output: {
-        entryFileNames: 'js/[name].[hash].js',
-        chunkFileNames: 'js/[name].[hash].js',
-        assetFileNames: 'assets/[name].[hash].[ext]'
-      }
-    }
+        entryFileNames: "js/[name].[hash].js",
+        chunkFileNames: "js/[name].[hash].js",
+        assetFileNames: "assets/[name].[hash].[ext]",
+      },
+    },
   },
   optimizeDeps: {
-    include: [
-      'react',
-      'react-dom'
-    ]
-  }
+    include: ["react", "react-dom"],
+  },
 });
