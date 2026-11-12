@@ -81,4 +81,5 @@ update-part.json
 Текстовый документ.txt
 
 # Local test servers
-test-server.mjs
+test-server.mjsinventory_full.txt
+inventory_full.txt
