@@ -83,3 +83,4 @@ update-part.json
 # Local test servers
 test-server.mjsinventory_full.txt
 inventory_full.txt
+test-server.mjs
