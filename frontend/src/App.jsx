@@ -7,6 +7,8 @@ import SessionsPage from "./pages/SessionsPage";
 import AiAssistantPage from "./pages/AiAssistantPage";
 import AgentPanel from "./components/AgentPanel";
 import LoginPage from "./pages/LoginPage";
+import ClientsPage from "./pages/ClientsPage";
+import ServicesPage from "./pages/ServicesPage";
 
 import { getStoredUser, logout } from "./api/backend";
 import { StatusCheck } from "./components/StatusCheck";
@@ -179,7 +181,11 @@ export default function App() {
           </section>
         )}
 
-        {["clients", "masters", "services"].includes(visiblePage) && (
+        {visiblePage === "clients" && <ClientsPage />}
+        {visiblePage === "services" && <ServicesPage />}
+
+
+        {visiblePage === "masters" && (
           <section className="page">
             <header className="page__header">
               <div>

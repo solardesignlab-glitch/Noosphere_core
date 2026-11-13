@@ -1,0 +1,14 @@
+-- Миграция 003: таблица services
+CREATE TABLE IF NOT EXISTS services (
+  id CHAR(36) PRIMARY KEY,
+  organization_id CHAR(36) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  category VARCHAR(64) NULL,
+  duration_minutes INT NOT NULL DEFAULT 60,
+  price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  description TEXT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_services_org (organization_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
