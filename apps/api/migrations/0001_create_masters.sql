@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS masters (
+﻿CREATE TABLE IF NOT EXISTS masters (
   id CHAR(36) NOT NULL PRIMARY KEY,
   organization_id CHAR(36) NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -8,6 +8,6 @@ CREATE TABLE IF NOT EXISTS masters (
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  KEY idx_masters_organization (organization_id),
+  KEY idx_masters_organization_id (organization_id),
   KEY idx_masters_name (name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;

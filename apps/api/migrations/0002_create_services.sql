@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS services (
+﻿CREATE TABLE IF NOT EXISTS services (
   id CHAR(36) NOT NULL PRIMARY KEY,
   organization_id CHAR(36) NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS services (
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  KEY idx_services_organization (organization_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY idx_services_organization_name (organization_id, name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
