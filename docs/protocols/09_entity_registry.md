@@ -28,25 +28,25 @@
 
 | Сущность | Название | Статус | Домен | Источник истины | Назначение | Ключевые поля |
 |---|---|---|---|---|---|---|
-| COrganization | Организация | Planned | Операционный контур | Ядро «Атмосферы» | Юрлицо или компания участника | name, inn, country, legalForm, status |
-| CParty | Участник рынка | Planned | Операционный контур | Ядро «Атмосферы» | Единый объект физлица или компании: клиент, партнёр, поставщик | name, partyType, status, country |
-| CPartner | Партнёр | Planned | Операционный контур | Ядро «Атмосферы» | Партнёрские отношения участника | party, organization, partnerType, status |
-| COffer | Предложение | Planned | Операционный контур | Ядро «Атмосферы» | Общее предложение рынка: товар или услуга | name, offerType, category, status |
-| CProduct | Товар | Merged | Операционный контур | Ядро «Атмосферы» | Объединён с `COffer(type=product)`; отдельная сущность товара в ядре не создаётся | — |
-| CDeal | Сделка | Planned | Операционный контур | Ядро «Атмосферы» | Коммерческая операция между участниками | party, offer, amount, currency, status |
-| CFinanceRecord | Финансовая операция | Planned | Операционный контур | Ядро «Атмосферы» | Доход, расход, амортизация, износ | date, amount, currency, recordType, category |
-| CBusinessModel | Бизнес-модель | Planned | Ресурсная экономика | Ядро «Атмосферы» | Модель деятельности для наблюдения | name, owner, status, country |
-| CIndicator | Показатель | Planned | Ресурсная экономика | Ядро «Атмосферы» | Метрика бизнес-модели | name, code, unit, calculationType, frequency |
-| CIndicatorValue | Значение показателя | Planned | Ресурсная экономика | Ядро «Атмосферы» | Фактическое значение показателя | indicator, businessModel, value, measuredAt, sourceType |
-| CResourceSnapshot | Снимок ресурса | Planned | Ресурсная экономика | Ядро «Атмосферы» | Значение или состояние ресурса на дату | resource, businessModel, value, unit, measuredAt, source |
+| COrganization | Организация | Planned | Операционный контур | Ядро «AtmoOS» | Юрлицо или компания участника | name, inn, country, legalForm, status |
+| CParty | Участник рынка | Planned | Операционный контур | Ядро «AtmoOS» | Единый объект физлица или компании: клиент, партнёр, поставщик | name, partyType, status, country |
+| CPartner | Партнёр | Planned | Операционный контур | Ядро «AtmoOS» | Партнёрские отношения участника | party, organization, partnerType, status |
+| COffer | Предложение | Planned | Операционный контур | Ядро «AtmoOS» | Общее предложение рынка: товар или услуга | name, offerType, category, status |
+| CProduct | Товар | Merged | Операционный контур | Ядро «AtmoOS» | Объединён с `COffer(type=product)`; отдельная сущность товара в ядре не создаётся | — |
+| CDeal | Сделка | Planned | Операционный контур | Ядро «AtmoOS» | Коммерческая операция между участниками | party, offer, amount, currency, status |
+| CFinanceRecord | Финансовая операция | Planned | Операционный контур | Ядро «AtmoOS» | Доход, расход, амортизация, износ | date, amount, currency, recordType, category |
+| CBusinessModel | Бизнес-модель | Planned | Ресурсная экономика | Ядро «AtmoOS» | Модель деятельности для наблюдения | name, owner, status, country |
+| CIndicator | Показатель | Planned | Ресурсная экономика | Ядро «AtmoOS» | Метрика бизнес-модели | name, code, unit, calculationType, frequency |
+| CIndicatorValue | Значение показателя | Planned | Ресурсная экономика | Ядро «AtmoOS» | Фактическое значение показателя | indicator, businessModel, value, measuredAt, sourceType |
+| CResourceSnapshot | Снимок ресурса | Planned | Ресурсная экономика | Ядро «AtmoOS» | Значение или состояние ресурса на дату | resource, businessModel, value, unit, measuredAt, source |
 
 ## Активы и ресурсы
 
 | Сущность | Название | Статус | Домен | Источник истины | Назначение | Ключевые поля |
 |---|---|---|---|---|---|---|
-| CAsset | Актив | Planned | Капитал владельца | Ядро «Атмосферы» | Имущество, накопления, вложения и другие ценности | name, assetType, quantity, currency, purchaseValue, currentValue, ownership, status, valuationDate |
-| CResource | Операционный ресурс | Planned | Операционный контур | Ядро «Атмосферы» | Объект, используемый в оказании услуги или выполнении заказа | name, resourceType, asset, organization, isActive, capacity, costPerHour |
-| CCustomerAsset | Ресурс клиента | Planned | Операционный контур | Ядро «Атмосферы» | Объект клиента, который обслуживается или участвует в заказах | customer, assetType, name, serialNumber, status, purchaseDate, notes |
+| CAsset | Актив | Planned | Капитал владельца | Ядро «AtmoOS» | Имущество, накопления, вложения и другие ценности | name, assetType, quantity, currency, purchaseValue, currentValue, ownership, status, valuationDate |
+| CResource | Операционный ресурс | Planned | Операционный контур | Ядро «AtmoOS» | Объект, используемый в оказании услуги или выполнении заказа | name, resourceType, asset, organization, isActive, capacity, costPerHour |
+| CCustomerAsset | Ресурс клиента | Planned | Операционный контур | Ядро «AtmoOS» | Объект клиента, который обслуживается или участвует в заказах | customer, assetType, name, serialNumber, status, purchaseDate, notes |
 
 ### Правило разделения
 
@@ -69,13 +69,13 @@ CResource → CDeal
 
 Пример: автомобиль компании может быть `CAsset` — для стоимости и принадлежности — и одновременно `CResource` — для выездного сервиса. Машина клиента будет `CCustomerAsset`.
 
-## Замороженная вертикаль «услуги с записью»
+## Замороженная AtmoOS UCP — вертикаль «услуги с записью»
 
 | Сущность | Название | Статус | Домен | Источник истины | Назначение | Ключевые поля |
 |---|---|---|---|---|---|---|
-| CMaster | Мастер | Frozen | Услуги с записью | Ядро «Атмосферы» | Мастер замороженной вертикали | name, phone, specialization |
-| CService | Услуга | Frozen | Услуги с записью | Ядро «Атмосферы» | Услуга замороженной вертикали | name, duration, price |
-| CAppointment | Запись | Frozen | Услуги с записью | Ядро «Атмосферы» | Запись клиента к мастеру | customer, master, service, date, status |
+| CMaster | Мастер | Frozen | Услуги с записью | Ядро «AtmoOS» | Мастер замороженной вертикали | name, phone, specialization |
+| CService | Услуга | Frozen | Услуги с записью | Ядро «AtmoOS» | Услуга замороженной вертикали | name, duration, price |
+| CAppointment | Запись | Frozen | Услуги с записью | Ядро «AtmoOS» | Запись клиента к мастеру | customer, master, service, date, status |
 
 ## Правило услуг
 
@@ -103,8 +103,8 @@ CResource → CDeal
 | CCountry | Страна сравнения | Planned | Исследования | Официальные источники страны | Страна в аналитическом контуре | name, code, currency, status |
 | CCountryIndicator | Показатель страны | Planned | Исследования | Официальные источники страны | Экономический или финансовый показатель страны | country, code, name, unit, frequency, source |
 | CCountryIndicatorValue | Значение показателя страны | Planned | Исследования | Официальный первоисточник значения | Историческое или текущее значение показателя | countryIndicator, value, measuredAt, period, source, methodology |
-| CComparison | Сравнение стран | Planned | Исследования | Ядро «Атмосферы» | Сравнение стран по выбранным показателям и периоду | name, countries, indicators, periodFrom, periodTo, status |
-| CDataSource | Источник данных | Planned | Исследования | Ядро «Атмосферы» | Внешний источник данных для показателей | name, url, type, reliability, status |
+| CComparison | Сравнение стран | Planned | Исследования | Ядро «AtmoOS» | Сравнение стран по выбранным показателям и периоду | name, countries, indicators, periodFrom, periodTo, status |
+| CDataSource | Источник данных | Planned | Исследования | Ядро «AtmoOS» | Внешний источник данных для показателей | name, url, type, reliability, status |
 
 ## Юридический контур
 
@@ -112,9 +112,9 @@ CResource → CDeal
 |---|---|---|---|---|---|---|
 | CJurisdiction | Юрисдикция | Planned | Юридический контур | Официальные источники юрисдикции | Страна, регион или уровень права | name, code, country, level, status |
 | CLegalNorm | Правовая норма | Planned | Юридический контур | Официальный первоисточник нормы | Закон, кодекс, постановление, письмо или судебная практика | jurisdiction, normType, title, number, editionDate, effectiveDate, status, sourceUrl |
-| CLegalTopic | Правовая тема | Planned | Юридический контур | Ядро «Атмосферы» | Тематическая группировка норм | name, code, description, status |
+| CLegalTopic | Правовая тема | Planned | Юридический контур | Ядро «AtmoOS» | Тематическая группировка норм | name, code, description, status |
 | CLegalInterpretation | Толкование нормы | Planned | Юридический контур | Указанный источник толкования | Официальное, экспертное или рабочее толкование | norm, question, interpretation, sourceType, source, verifiedAt |
-| CComplianceRequirement | Требование комплаенса | Planned | Юридический контур | Ядро «Атмосферы» | Требование продукта, организации или клиента, вытекающее из нормы | norm, scope, requirement, implementation, verification, owner, dueDate, status |
+| CComplianceRequirement | Требование комплаенса | Planned | Юридический контур | Ядро «AtmoOS» | Требование продукта, организации или клиента, вытекающее из нормы | norm, scope, requirement, implementation, verification, owner, dueDate, status |
 | CRegulation | Правовое регулирование | Planned | Юридический контур | Официальный первоисточник | Обобщённая связь страны с правовым регулированием | country, name, category, status, source |
 
 ### Связи юридического контура

@@ -1,4 +1,4 @@
--- Миграция 003: таблица services
+-- 003: таблица services
 CREATE TABLE IF NOT EXISTS services (
   id CHAR(36) PRIMARY KEY,
   organization_id CHAR(36) NOT NULL,
@@ -10,5 +10,7 @@ CREATE TABLE IF NOT EXISTS services (
   description TEXT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_services_org (organization_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+  INDEX idx_services_org (organization_id),
+  INDEX idx_services_org_name (organization_id, name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

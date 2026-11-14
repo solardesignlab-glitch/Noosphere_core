@@ -1,12 +1,14 @@
 {
   "name": "atmosfera-backend",
   "version": "1.0.0",
-  "description": "AI backend для платформы Атмосфера",
+  "description": "AI backend для платформы AtmoOS",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "db:migrate": "node --env-file=../../.env db-migrate.js",
+    "db:status": "node --env-file=../../.env db-migrate.js --status"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

@@ -1,70 +1,26 @@
-const API_URL = "http://localhost:4000/api/parts";
-
+import { backendRequest } from "./backend";
 
 export async function getParts() {
-  const response = await fetch(API_URL);
-
-
-  if (!response.ok) {
-    throw new Error("Не удалось загрузить запчасти");
-  }
-
-
-  const data = await response.json();
+  const data = await backendRequest("/api/parts");
   return data.items || [];
 }
 
-
 export async function createPart(payload) {
-  const response = await fetch(API_URL, {
+  return backendRequest("/api/parts", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify(payload)
   });
-
-
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || "Не удалось создать запчасть");
-  }
-
-
-  return response.json();
 }
-
 
 export async function updatePart(id, payload) {
-  const response = await fetch(`${API_URL}/${id}`, {
+  return backendRequest(`/api/parts/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify(payload)
   });
-
-
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || "Не удалось обновить запчасть");
-  }
-
-
-  return response.json();
 }
 
-
 export async function deletePart(id) {
-  const response = await fetch(`${API_URL}/${id}`, {
+  return backendRequest(`/api/parts/${id}`, {
     method: "DELETE"
   });
-
-
-  if (!response.ok) {
-    throw new Error("Не удалось удалить запчасть");
-  }
-
-
-  return response.json();
 }

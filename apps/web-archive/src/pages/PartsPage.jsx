@@ -10,7 +10,6 @@ import {
 
 
 const emptyForm = {
-  organizationId: 1,
   sku: "",
   name: "",
   brand: "",
@@ -64,7 +63,6 @@ export default function PartsPage() {
 
 
     const payload = {
-      organizationId: Number(form.organizationId),
       sku: form.sku,
       name: form.name,
       brand: form.brand,
@@ -94,7 +92,6 @@ export default function PartsPage() {
   function handleEdit(part) {
     setEditingId(part.id);
     setForm({
-      organizationId: part.organization_id,
       sku: part.sku,
       name: part.name,
       brand: part.brand || "",

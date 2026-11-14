@@ -1,0 +1,3 @@
+﻿# Tenant Isolation Design
+
+[Дизайн]
