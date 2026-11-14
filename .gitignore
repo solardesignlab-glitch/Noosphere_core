@@ -98,3 +98,5 @@ inventory_full.txt
 *.log
 
 *.rar
+
+espocrm-dump.sql
