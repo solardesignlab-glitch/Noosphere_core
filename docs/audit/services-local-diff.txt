@@ -1,0 +1,289 @@
+﻿diff --git a/apps/api/src/routes/services.js b/apps/api/src/routes/services.js
+index be9ed51..207c6e2 100644
+--- a/apps/api/src/routes/services.js
++++ b/apps/api/src/routes/services.js
+@@ -1,6 +1,6 @@
+-import crypto from "crypto";
++я╗┐import crypto from "crypto";
+ 
+-import { requireAuth } from "../../auth.js";
++import { requireAuth, requireRole } from "../../auth.js";
+ import { tenantContext } from "../shared/middleware/tenantContext.js";
+ 
+ export default function registerServiceRoutes(app, dbPool) {
+@@ -22,121 +22,178 @@ export default function registerServiceRoutes(app, dbPool) {
+     }
+   });
+ 
+-  app.post("/api/services", requireAuth, tenantContext, async (req, res) => {
+-    try {
+-      const organizationId = req.organizationId;
+-      const { name, category, durationMinutes, price, isActive, description } =
+-        req.body || {};
++  app.post(
++    "/api/services",
++    requireAuth,
++    requireRole("owner"),
++    tenantContext,
++    async (req, res) => {
++      try {
++        const organizationId = req.organizationId;
++        const {
++          name,
++          category,
++          durationMinutes,
++          price,
++          isActive,
++          description,
++        } = req.body || {};
++
++        if (!organizationId) {
++          return res.status(400).json({ error: "╨Э╨╡╤В ╨║╨╛╨╜╤В╨╡╨║╤Б╤В╨░ ╨╛╤А╨│╨░╨╜╨╕╨╖╨░╤Ж╨╕╨╕" });
++        }
+ 
+-      if (!organizationId) {
+-        return res.status(400).json({ error: "╨Э╨╡╤В ╨║╨╛╨╜╤В╨╡╨║╤Б╤В╨░ ╨╛╤А╨│╨░╨╜╨╕╨╖╨░╤Ж╨╕╨╕" });
+-      }
++        if (!name || typeof name !== "string" || !name.trim()) {
++          return res.status(400).json({ error: "╨г╨║╨░╨╢╨╕╤В╨╡ ╨╜╨░╨╖╨▓╨░╨╜╨╕╨╡ ╤Г╤Б╨╗╤Г╨│╨╕" });
++        }
+ 
+-      if (!name || typeof name !== "string" || !name.trim()) {
+-        return res.status(400).json({ error: "╨г╨║╨░╨╢╨╕╤В╨╡ ╨╜╨░╨╖╨▓╨░╨╜╨╕╨╡ ╤Г╤Б╨╗╤Г╨│╨╕" });
+-      }
++        const duration = Number(durationMinutes ?? 60);
++        if (!Number.isInteger(duration) || duration <= 0) {
++          return res
++            .status(400)
++            .json({ error: "╨Ф╨╗╨╕╤В╨╡╨╗╤М╨╜╨╛╤Б╤В╤М ╨┤╨╛╨╗╨╢╨╜╨░ ╨▒╤Л╤В╤М ╤Ж╨╡╨╗╤Л╨╝ ╤З╨╕╤Б╨╗╨╛╨╝ ╨╝╨╕╨╜╤Г╤В" });
++        }
+ 
+-      const duration = Number(durationMinutes ?? 60);
+-      if (!Number.isInteger(duration) || duration <= 0) {
+-        return res
+-          .status(400)
+-          .json({ error: "╨Ф╨╗╨╕╤В╨╡╨╗╤М╨╜╨╛╤Б╤В╤М ╨┤╨╛╨╗╨╢╨╜╨░ ╨▒╤Л╤В╤М ╤Ж╨╡╨╗╤Л╨╝ ╤З╨╕╤Б╨╗╨╛╨╝ ╨╝╨╕╨╜╤Г╤В" });
+-      }
++        const normalizedPrice = Number(price ?? 0);
++        if (Number.isNaN(normalizedPrice) || normalizedPrice < 0) {
++          return res.status(400).json({ error: "╨Э╨╡╨║╨╛╤А╤А╨╡╨║╤В╨╜╨░╤П ╤Ж╨╡╨╜╨░" });
++        }
+ 
+-      const normalizedPrice = Number(price ?? 0);
+-      if (Number.isNaN(normalizedPrice) || normalizedPrice < 0) {
+-        return res.status(400).json({ error: "╨Э╨╡╨║╨╛╤А╤А╨╡╨║╤В╨╜╨░╤П ╤Ж╨╡╨╜╨░" });
++        const id = crypto.randomUUID();
++        await dbPool.query(
++          `INSERT INTO services (id, organization_id, name, category, duration_minutes, price, is_active, description)
++           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
++          [
++            id,
++            organizationId,
++            name.trim(),
++            category ?? null,
++            duration,
++            normalizedPrice,
++            isActive === false ? 0 : 1,
++            description ?? null,
++          ],
++        );
++
++        const [created] = await dbPool.query(
++          `SELECT id, organization_id, name, category, duration_minutes, price, is_active, description, created_at, updated_at
++           FROM services
++           WHERE id = ?`,
++          [id],
++        );
++        res.status(201).json({ item: created[0] });
++      } catch (error) {
++        console.error("CREATE_SERVICE_ERROR:", error);
++        res.status(500).json({ error: "╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╤Б╨╛╨╖╨┤╨░╤В╤М ╤Г╤Б╨╗╤Г╨│╤Г" });
+       }
++    },
++  );
+ 
+-      const id = crypto.randomUUID();
+-      await dbPool.query(
+-        `INSERT INTO services (id, organization_id, name, category, duration_minutes, price, is_active, description)
+-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+-        [
+-          id,
+-          organizationId,
+-          name.trim(),
+-          category ?? null,
+-          duration,
+-          normalizedPrice,
+-          isActive === false ? 0 : 1,
+-          description ?? null,
+-        ],
+-      );
++  app.put(
++    "/api/services/:id",
++    requireAuth,
++    requireRole("owner"),
++    tenantContext,
++    async (req, res) => {
++      try {
++        const { id } = req.params;
++        const organizationId = req.organizationId;
++        const body = req.body || {};
+ 
+-      const [created] = await dbPool.query(
+-        `SELECT * FROM services WHERE id = ?`,
+-        [id],
+-      );
+-      res.status(201).json({ item: created[0] });
+-    } catch (error) {
+-      console.error("CREATE_SERVICE_ERROR:", error);
+-      res.status(500).json({ error: "╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╤Б╨╛╨╖╨┤╨░╤В╤М ╤Г╤Б╨╗╤Г╨│╤Г" });
+-    }
+-  });
++        const [existing] = await dbPool.query(
++          `SELECT id FROM services WHERE id = ? AND organization_id = ?`,
++          [id, organizationId],
++        );
+ 
+-  app.put("/api/services/:id", requireAuth, tenantContext, async (req, res) => {
+-    try {
+-      const { id } = req.params;
+-      const organizationId = req.organizationId;
+-      const { name, category, durationMinutes, price, isActive, description } =
+-        req.body || {};
+-
+-      const [existing] = await dbPool.query(
+-        `SELECT id FROM services WHERE id = ? AND organization_id = ?`,
+-        [id, organizationId],
+-      );
++        if (existing.length === 0) {
++          return res.status(404).json({ error: "╨г╤Б╨╗╤Г╨│╨░ ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜╨░" });
++        }
+ 
+-      if (existing.length === 0) {
+-        return res.status(404).json({ error: "╨г╤Б╨╗╤Г╨│╨░ ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜╨░" });
+-      }
++        const fields = [];
++
++        if (body.name !== undefined) {
++          if (
++            !body.name ||
++            typeof body.name !== "string" ||
++            !body.name.trim()
++          ) {
++            return res.status(400).json({ error: "╨г╨║╨░╨╢╨╕╤В╨╡ ╨╜╨░╨╖╨▓╨░╨╜╨╕╨╡ ╤Г╤Б╨╗╤Г╨│╨╕" });
++          }
++          fields.push(["name", body.name.trim()]);
++        }
+ 
+-      if (!name || typeof name !== "string" || !name.trim()) {
+-        return res.status(400).json({ error: "╨г╨║╨░╨╢╨╕╤В╨╡ ╨╜╨░╨╖╨▓╨░╨╜╨╕╨╡ ╤Г╤Б╨╗╤Г╨│╨╕" });
+-      }
++        if (body.category !== undefined) {
++          fields.push([
++            "category",
++            body.category === null ? null : String(body.category),
++          ]);
++        }
+ 
+-      const duration = Number(durationMinutes ?? 60);
+-      if (!Number.isInteger(duration) || duration <= 0) {
+-        return res
+-          .status(400)
+-          .json({ error: "╨Ф╨╗╨╕╤В╨╡╨╗╤М╨╜╨╛╤Б╤В╤М ╨┤╨╛╨╗╨╢╨╜╨░ ╨▒╤Л╤В╤М ╤Ж╨╡╨╗╤Л╨╝ ╤З╨╕╤Б╨╗╨╛╨╝ ╨╝╨╕╨╜╤Г╤В" });
+-      }
++        if (body.durationMinutes !== undefined) {
++          const duration = Number(body.durationMinutes);
++          if (!Number.isInteger(duration) || duration <= 0) {
++            return res.status(400).json({
++              error: "╨Ф╨╗╨╕╤В╨╡╨╗╤М╨╜╨╛╤Б╤В╤М ╨┤╨╛╨╗╨╢╨╜╨░ ╨▒╤Л╤В╤М ╤Ж╨╡╨╗╤Л╨╝ ╤З╨╕╤Б╨╗╨╛╨╝ ╨╝╨╕╨╜╤Г╤В",
++            });
++          }
++          fields.push(["duration_minutes", duration]);
++        }
+ 
+-      const normalizedPrice = Number(price ?? 0);
+-      if (Number.isNaN(normalizedPrice) || normalizedPrice < 0) {
+-        return res.status(400).json({ error: "╨Э╨╡╨║╨╛╤А╤А╨╡╨║╤В╨╜╨░╤П ╤Ж╨╡╨╜╨░" });
+-      }
++        if (body.price !== undefined) {
++          const normalizedPrice = Number(body.price);
++          if (Number.isNaN(normalizedPrice) || normalizedPrice < 0) {
++            return res.status(400).json({ error: "╨Э╨╡╨║╨╛╤А╤А╨╡╨║╤В╨╜╨░╤П ╤Ж╨╡╨╜╨░" });
++          }
++          fields.push(["price", normalizedPrice]);
++        }
+ 
+-      await dbPool.query(
+-        `UPDATE services
+-         SET name = ?, category = ?, duration_minutes = ?, price = ?, is_active = ?, description = ?, updated_at = CURRENT_TIMESTAMP
+-         WHERE id = ? AND organization_id = ?`,
+-        [
+-          name.trim(),
+-          category ?? null,
+-          duration,
+-          normalizedPrice,
+-          isActive === false ? 0 : 1,
+-          description ?? null,
+-          id,
+-          organizationId,
+-        ],
+-      );
++        if (body.isActive !== undefined) {
++          fields.push(["is_active", body.isActive === false ? 0 : 1]);
++        }
+ 
+-      const [updated] = await dbPool.query(
+-        `SELECT * FROM services WHERE id = ?`,
+-        [id],
+-      );
+-      res.json({ item: updated[0] });
+-    } catch (error) {
+-      console.error("UPDATE_SERVICE_ERROR:", error);
+-      res.status(500).json({ error: "╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╨╛╨▒╨╜╨╛╨▓╨╕╤В╤М ╤Г╤Б╨╗╤Г╨│╤Г" });
+-    }
+-  });
++        if (body.description !== undefined) {
++          fields.push([
++            "description",
++            body.description === null ? null : String(body.description),
++          ]);
++        }
++
++        if (fields.length === 0) {
++          return res.status(400).json({
++            error: "╨Э╨╡ ╨┐╨╡╤А╨╡╨┤╨░╨╜╨╛ ╨╜╨╕ ╨╛╨┤╨╜╨╛╨│╨╛ ╨┐╨╛╨╗╤П ╨┤╨╗╤П ╨╛╨▒╨╜╨╛╨▓╨╗╨╡╨╜╨╕╤П",
++          });
++        }
++
++        const setSql = fields.map(([column]) => `${column} = ?`).join(", ");
++        const values = fields.map(([, value]) => value);
++
++        await dbPool.query(
++          `UPDATE services
++           SET ${setSql}, updated_at = CURRENT_TIMESTAMP
++           WHERE id = ? AND organization_id = ?`,
++          [...values, id, organizationId],
++        );
++
++        const [updated] = await dbPool.query(
++          `SELECT id, organization_id, name, category, duration_minutes, price, is_active, description, created_at, updated_at
++           FROM services
++           WHERE id = ?`,
++          [id],
++        );
++
++        return res.json({ item: updated[0] });
++      } catch (error) {
++        console.error("SERVICE_UPDATE_ERROR:", error);
++
++        return res.status(500).json({ error: "╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╨╛╨▒╨╜╨╛╨▓╨╕╤В╤М ╤Г╤Б╨╗╤Г╨│╤Г" });
++      }
++    },
++  );
+ 
+   app.delete(
+     "/api/services/:id",
+     requireAuth,
++    requireRole("owner"),
+     tenantContext,
+     async (req, res) => {
+       try {
