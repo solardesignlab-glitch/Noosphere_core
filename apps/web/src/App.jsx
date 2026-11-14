@@ -20,7 +20,6 @@ const OWNER_NAV_ITEMS = [
   { id: "clients", label: "Клиенты", icon: "👥" },
   { id: "masters", label: "Мастера", icon: "✂️" },
   { id: "services", label: "Услуги", icon: "💼" },
-  { id: "parts", label: "Запчасти", icon: "⚙️" },
   { id: "ai", label: "AI-помощник", icon: "🤖" },
   { id: "settings", label: "Настройки", icon: "⚙️" }
 ];
@@ -152,7 +151,6 @@ export default function App() {
            <SessionsPage onOpenAssistant={() => setIsAgentOpen(true)} />
          )}
 
-        {visiblePage === "parts" && <PartsPage />}
         
         {visiblePage === "clients" && <ClientsPage />}
         {visiblePage === "services" && <ServicesPage />}

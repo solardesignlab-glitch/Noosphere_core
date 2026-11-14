@@ -46,7 +46,7 @@
 
 ## 4. Карта живых модулей (пост-консолидация)
 
-- apps/api — Backend API. auth (register/login/me), CRUD клиентов и услуг, media, AI-чат, agent propose-code, интеграция EspoCRM (espocrmRequest), registerServiceRoutes (src/routes/services.js). Есть эндпоинты /api/parts — наследие предшественника, судьба не решена.
+- apps/api — Backend API. auth (register/login/me), CRUD клиентов и услуг, media, AI-чат, agent propose-code, интеграция EspoCRM (espocrmRequest), registerServiceRoutes (src/routes/services.js). Эндпоинты /api/parts отсутствуют; наследие (PartsPage, api/parts.js, FileManager, AiPanel) удалено 2026-11-14.
 - apps/api/migrations — ЕДИНСТВЕННЫЙ канон схемы: 0001 masters, 0002 services, 0003 clients, 0004 appointments. Сверены с живой БД через SHOW CREATE TABLE (коммит e4160f3): индексы и коллация uca1400_ai_ci выровнены.
 - apps/api/db-migrate.js — ЕДИНСТВЕННЫЙ runner миграций; статус: npm run db:migrate / db:status (Applied: 4, Pending: 0).
 - apps/api/src — модульный каркас: config/env, shared/db/pool, shared/middleware/tenantContext, routes/health, routes/services, integrations/espocrm-adapter.
@@ -107,7 +107,7 @@
 3. Пароль БД светился в переписке — сменить.
 4. Комментарии в .env не в UTF-8.
 5. Блок schema_migrations внутри src/modules/tenancy/migrations.sql — второй источник истины о схеме (находка аудита №9); устранить в бэклоге.
-6. Страницы apps/web (Masters, Parts) могут ссылаться на API-роуты, которых нет в apps/api/src/routes — сверить (следующий шаг).
+6. Закрыто сверкой 2026-11-14: клиенты/мастера/записи живы. Мёртвыми были Parts (/api/parts), FileManager (/api/files), AiPanel (/api/ai/task) — удалены. AiModelsPage требует починки (/api/ai/models, /api/ai/test не существуют; живой роут — /api/models).
 
 ## 10. Следующие шаги
 
