@@ -585,6 +585,13 @@ ${userQuestion}
 );
 
 
+
+function buildMediaUrl(req, fileName) {
+  const baseUrl = (process.env.BASE_URL || "").trim().replace(/\/+$/, "");
+  const origin = baseUrl || `${req.protocol}://${req.get("host")}`;
+  return `${origin}/uploads/${fileName}`;
+}
+
 app.get("/api/media", requireAuth, tenantContext, (req, res) => {
   try {
     const files = fs
@@ -595,7 +602,7 @@ app.get("/api/media", requireAuth, tenantContext, (req, res) => {
       .map((name) => ({
         id: name,
         name,
-        url: `http://localhost:4000/uploads/${name}`
+        url: buildMediaUrl(req, name)
       }));
 
 
@@ -625,7 +632,7 @@ app.post("/api/media", requireAuth, tenantContext, mediaUpload.single("image"), 
     res.json({
       id: req.file.filename,
       name: req.file.originalname,
-      url: `http://localhost:4000/uploads/${req.file.filename}`
+      url: buildMediaUrl(req, req.file.filename)
     });
   } catch (error) {
     console.error(error);
