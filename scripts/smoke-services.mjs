@@ -1,4 +1,11 @@
-const API_URL = "http://localhost:4000";
+const API_URL = process.env.SMOKE_API_URL || "http://localhost:4000";
+const OWNER_EMAIL = process.env.SMOKE_OWNER_EMAIL || "owner@atmosfera.local";
+const OWNER_PASSWORD = process.env.SMOKE_OWNER_PASSWORD;
+
+if (!OWNER_PASSWORD) {
+  console.error("SMOKE_OWNER_PASSWORD is not set (export it or put into .env)");
+  process.exit(1);
+}
 
 async function request(path, options = {}) {
   const res = await fetch(`${API_URL}${path}`, {
@@ -23,8 +30,8 @@ async function main() {
   const login = await request("/api/auth/login", {
     method: "POST",
     body: JSON.stringify({
-      email: "owner@atmosfera.local",
-      password: "AtmosferaOwner2026!",
+      email: OWNER_EMAIL,
+      password: OWNER_PASSWORD,
     }),
   });
 
