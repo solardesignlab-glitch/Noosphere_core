@@ -1,4 +1,4 @@
-﻿import mysql from "mysql2/promise";
+import mysql from "mysql2/promise";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
@@ -941,6 +941,35 @@ app.post("/api/parts", requireAuth, tenantContext, async (req, res) => {
     });
   }
 });
+
+// ==================== ORG STRUCTURE ====================
+
+app.get(
+  "/api/organization/staff",
+  requireAuth,
+  requireRole("owner"),
+  async (req, res) => {
+    try {
+      const [rows] = await dbPool.query(
+        `SELECT u.id, u.email, om.role, om.created_at AS joined_at
+         FROM organization_members om
+         JOIN users u ON u.id = om.user_id
+         WHERE om.organization_id = ?
+         ORDER BY om.created_at ASC`,
+        [req.organizationId],
+      );
+
+      res.json({ items: rows });
+    } catch (error) {
+      console.error("STAFF_LIST_ERROR:", error);
+
+      res.status(500).json({
+        error: "Не удалось получить список сотрудников",
+      });
+    }
+  },
+);
+
 
 // ==================== CLIENTS ====================
 
