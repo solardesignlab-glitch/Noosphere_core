@@ -1,17 +1,20 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
 import mysql from "mysql2/promise";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const migrationsDir = path.join(__dirname, "migrations");
 
+dotenv.config({ path: path.join(__dirname, ".env") });
+
 const {
   DB_HOST = "127.0.0.1",
-  DB_PORT = "3306",
-  DB_USER = "root",
+  DB_PORT = "3307",
+  DB_USER = "ucp_user",
   DB_PASSWORD = "",
-  DB_NAME = "atmoos",
+  DB_NAME = "ucp",
 } = process.env;
 
 const pool = mysql.createPool({
@@ -25,6 +28,8 @@ const pool = mysql.createPool({
   multipleStatements: true,
 });
 
+console.log(`Migration runner: ${DB_USER}@${DB_HOST}:${DB_PORT}/${DB_NAME}`);
+
 async function ensureMigrationsTable() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -36,7 +41,7 @@ async function ensureMigrationsTable() {
 
 async function getAppliedMigrations() {
   const [rows] = await pool.query(
-    "SELECT id FROM schema_migrations ORDER BY id ASC"
+    "SELECT id FROM schema_migrations ORDER BY id ASC",
   );
 
   return new Set(rows.map((row) => row.id));
@@ -45,9 +50,7 @@ async function getAppliedMigrations() {
 async function getMigrationFiles() {
   const entries = await fs.readdir(migrationsDir);
 
-  return entries
-    .filter((name) => name.endsWith(".sql"))
-    .sort();
+  return entries.filter((name) => name.endsWith(".sql")).sort();
 }
 
 function splitSqlStatements(sql) {
@@ -69,10 +72,9 @@ async function applyMigration(file, sql) {
       await connection.query(statement);
     }
 
-    await connection.query(
-      "INSERT INTO schema_migrations (id) VALUES (?)",
-      [file]
-    );
+    await connection.query("INSERT INTO schema_migrations (id) VALUES (?)", [
+      file,
+    ]);
 
     await connection.commit();
 
@@ -123,10 +125,7 @@ async function main() {
   }
 
   for (const file of pending) {
-    const sql = await fs.readFile(
-      path.join(migrationsDir, file),
-      "utf8"
-    );
+    const sql = await fs.readFile(path.join(migrationsDir, file), "utf8");
 
     await applyMigration(file, sql);
 
